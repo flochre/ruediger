@@ -1,9 +1,6 @@
 #ifndef IMU_HPP
 #define IMU_HPP
 
-// #include <String.h>
-// #include <string>
-
 #include "Wire.h"
 #include "I2Cdev.h"
 #include "helper_3dmath.h"
@@ -48,7 +45,6 @@ class Imu {
   public:
     Imu(void);
     void setup(ros::NodeHandle *nh, char topic_name[] = "imu_data");
-    // void setup(ros::NodeHandle *nh, std::string topic_name = 'imu_data');
     void loop(void);
 };
 

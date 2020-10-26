@@ -8,6 +8,7 @@
 #define TIMER_USS 100
 
 // These are the ROS headers for getting ROS Client API's.
+// #include <ros.h>
 #include <ros.h>
 #include "imu.hpp"
 #include "uss.hpp"
@@ -28,10 +29,7 @@ bool blinkState = false;
 void setup() {
   // put your setup code here, to run once:
   delay(5);
-  // Wire.begin();
   nh.initNode();
-
-  // loop_rate = new ros::Rate(10);
 
   my_imu = new Imu;
   my_imu->setup(&nh, "imu_data");
@@ -53,7 +51,7 @@ void setup() {
   // TCCR1B=TCCR1B&0xf8|0x01;    // Pin9,Pin10 PWM 31250Hz
   // TCCR2B=TCCR2B&0xf8|0x01;    // Pin3,Pin11 PWM 31250Hz
 
-  nh.negotiateTopics();
+  // nh.negotiateTopics();
 }
 
 void loop() {

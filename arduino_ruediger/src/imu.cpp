@@ -4,12 +4,10 @@ Imu::Imu(void) {
 }
 
 void Imu::setup(ros::NodeHandle *nh, char topic_name[]){
-// void Imu::setup(ros::NodeHandle *nh, std::string topic_name){
     nh_ = nh;
   
     // Create publisher and advertise it!
-    imu_pub = new ros::Publisher(topic_name, &imu_msgs);     
-    // imu_pub = new ros::Publisher(topic_name.c_str(), &imu_msgs);     
+    imu_pub = new ros::Publisher(topic_name, &imu_msgs);          
     nh_->advertise(*imu_pub);
 
     // Init Gyroscope
