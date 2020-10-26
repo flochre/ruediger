@@ -14,5 +14,7 @@ That is why there will be 2 folders
 ## Arduino_Ruediger
 
 ## Raspi_Ruediger
+'''
 ssh ubuntu@ubiquityrobot
 rosrun rosserial_python serial_node.py /dev/ttyAMA0
+'''
