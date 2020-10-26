@@ -1,4 +1,6 @@
-Source the project or add it to your bashrc
+# How to start the robot
+
+## Source the project or add it to your bashrc
 On the Raspi
 ```
 source ~/rosserial_ws/devel/setup.bash
@@ -14,7 +16,7 @@ rostopic echo /imu_data
 rostopic echo /tf
 ```
 
-PINOUT
+## PINOUT
 | PORT  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |
 |:-----:|---:|---:|---:|---:|---:|---:|---:|---:|
 | PORT1 | 11 | 12 | 18 | 31 | 32 | 33 | 34 | 35 |
