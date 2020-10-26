@@ -15,7 +15,7 @@ rostopic echo /tf
 ```
 
 PINOUT
-| PORT  |    |    |    |    |    |    |    |    |
+| PORT  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |
 |:-----:|---:|---:|---:|---:|---:|---:|---:|---:|
 | PORT1 | 11 | 12 | 18 | 31 | 32 | 33 | 34 | 35 |
 | PORT2 |  7 |  8 | 19 | 38 | 41 | 40 | 37 | 36 |
