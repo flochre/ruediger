@@ -23,3 +23,11 @@ rostopic echo /tf
 | PORT2 |  7 |  8 | 19 | 38 | 41 | 40 | 37 | 36 |
 | PORT3 |  6 |  9 |  3 | 49 | 48 | 47 | 43 | 42 |
 | PORT4 |  4 |  5 |  2 | A1 | A2 | A3 | A4 | A5 |
+
+## Motor Test Subscriber
+```
+rostopic pub servo std_msgs/UInt16  <angle>
+rostopic pub motor_1 std_msgs/Int32  <selector>
+
+motor turning but to fast ..
+```
