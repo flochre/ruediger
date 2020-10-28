@@ -14,46 +14,73 @@ void Motor::isr_process_encoder(void){
   }
 }
 
-void Motor::motor_msg(const std_msgs::Int32 &msg){
-    switch(msg.data)
-    {
-      case 0:
-        my_motor.runSpeed(0);
-        break;
-      case 1:
-        my_motor.runSpeed(100);
-        break;
-      case 2:
-        my_motor.runSpeed(200);
-        break;
-      case 3:
-        my_motor.runSpeed(255);
-        break;
-      case 4:
-        my_motor.runSpeed(-100);
-        break;
-      case 5:
-        my_motor.runSpeed(-200);
-        break;
-      case 6:
-        my_motor.runSpeed(-255);
-        break;
-      default:
-        break;
-    }
+void Motor::configure_motor(int pulse, float ratio, float pos_p, float pos_i,float pos_d, float speed_p, float speed_i,float speed_d)
+{
+    my_motor.setPulse(pulse);
+    my_motor.setRatio(ratio);
+    my_motor.setPosPid(pos_p, pos_i, pos_d);
+    my_motor.setSpeedPid(speed_p, speed_i, speed_d);
 }
 
-void Motor::setup(ros::NodeHandle *nh, char topic_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb){
+void Motor::set_default_values(long pulse_pos, long position, float speed, int16_t pwm, int16_t motionMode){
+    my_motor.setPulsePos(pulse_pos);
+    my_motor.moveTo(position, speed);
+    my_motor.setMotorPwm(pwm);
+    my_motor.setMotionMode(motionMode);
+}
+
+void Motor::motor_msg(const std_msgs::Int32 &msg){
+
+    int32_t speed;
+
+    speed = msg.data;
+    if (speed > 255) speed = 255;
+    if (speed < -255) speed = -255;
+
+    my_motor.runSpeed(speed);
+}
+
+void Motor::setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb){
     nh_ = nh;
-    motor_sub = new ros::Subscriber<std_msgs::Int32>(topic_name, cb);
+
+    motor_pub = new ros::Publisher(publisher_name, &encoder_info);
+    nh_->advertise(*motor_pub);
+
+    motor_sub = new ros::Subscriber<std_msgs::Int32>(subscriber_name, cb);
     nh_->subscribe(*motor_sub);
 
-    my_motor.setPulse(7);
-    my_motor.setRatio(26.9);
-    my_motor.setPosPid(1.8,0,1.2);
-    my_motor.setSpeedPid(0.18,0,0);
+    // Configure motor
+
+    configure_motor(
+        8, 
+        46.67, 
+        1.8, 0, 1.2, 
+        0.18, 0, 0
+    );
+
+
+    // my_motor.setPulse(8);
+    // my_motor.setRatio(46.67);
+    // my_motor.setPosPid(1.8,0,1.2);
+    // my_motor.setSpeedPid(0.18,0,0);
+
+    // Reset Default values
+    set_default_values(
+        0, 
+        0, 10, 
+        0, 
+        DIRECT_MODE
+    );
+
+    // my_motor.setPulsePos(0);
+    // my_motor.moveTo(0,10);
+    // my_motor.setMotorPwm(0);
+    // my_motor.setMotionMode(DIRECT_MODE);
 }
 
 void Motor::loop(void){
     my_motor.loop();
+
+    encoder_info.data = my_motor.getPulsePos();
+    motor_pub->publish(&encoder_info);
 }

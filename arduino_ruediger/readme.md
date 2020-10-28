@@ -29,5 +29,7 @@ rostopic echo /tf
 rostopic pub servo std_msgs/UInt16  <angle>
 rostopic pub motor_1 std_msgs/Int32  <selector>
 
+rostopic pub motor_4 std_msgs/Int32 "data: -20" -> give the speed given out (my_motor.runSpeed(msg.data);)
+
 motor turning but to fast ..
 ```

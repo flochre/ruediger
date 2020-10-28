@@ -65,13 +65,64 @@ void setup() {
   my_imu->setup(&nh, "imu_data");
 
   motor_1 = new Motor(SLOT1);
-  motor_1->setup(&nh, "motor_1", &motor_1_cmd);
+  motor_1->setup(&nh, "encoder_1", "motor_1", &motor_1_cmd);
+  motor_1->configure_motor(
+    8, 
+    75, 
+    0.86, 0, 1.2, 
+    0.08, 0, 0
+  );
+  motor_1->set_default_values(
+    0, 
+    0, 10, 
+    0, 
+    DIRECT_MODE
+  );
+
   motor_2 = new Motor(SLOT2);
-  motor_2->setup(&nh, "motor_2", &motor_2_cmd);
+  motor_2->setup(&nh, "encoder_2", "motor_2", &motor_2_cmd);
+  motor_2->configure_motor(
+    8, 
+    46.67, 
+    1.8, 0, 1.2, 
+    0.18, 0, 0
+  );
+  motor_2->set_default_values(
+    0, 
+    0, 10, 
+    0, 
+    DIRECT_MODE
+  );
+
   motor_3 = new Motor(SLOT3);
-  motor_3->setup(&nh, "motor_3", &motor_3_cmd);
+  motor_3->setup(&nh, "encoder_3", "motor_3", &motor_3_cmd);
+  motor_3->configure_motor(
+    8, 
+    46.67, 
+    1.8, 0, 1.2, 
+    0.18, 0, 0
+  );
+  motor_3->set_default_values(
+    0, 
+    0, 10, 
+    0, 
+    DIRECT_MODE
+  );
+
   motor_4 = new Motor(SLOT4);
-  motor_4->setup(&nh, "motor_4", &motor_4_cmd);
+  motor_4->setup(&nh, "encoder_4", "motor_4", &motor_4_cmd);
+  motor_4->configure_motor(
+    8, 
+    1, 
+    1.8, 0, 1.2, 
+    0.18, 0, 0
+  );
+  motor_4->set_default_values(
+    0, 
+    0, 10, 
+    0, 
+    DIRECT_MODE
+  );
 
   attachInterrupt(motor_1->my_motor.getIntNum(), isr_process_encoder1, RISING);
   attachInterrupt(motor_2->my_motor.getIntNum(), isr_process_encoder2, RISING);
