@@ -114,8 +114,8 @@ void setup() {
   motor_4->configure_motor(
     8, 
     1, 
-    1.8, 0, 1.2, 
-    0.18, 0, 0
+    0.6, 0, 1.2, 
+    0.06, 0, 0
   );
   motor_4->set_default_values(
     0, 
