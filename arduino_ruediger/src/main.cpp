@@ -10,12 +10,14 @@
 // These are the ROS headers for getting ROS Client API's.
 #include <ros.h>
 
+#include "drive.hpp"
 #include "imu.hpp"
 #include "motor.hpp"
 #include "uss.hpp"
 
 ros::NodeHandle nh;
 
+Drive *my_driver;
 Imu *my_imu;
 Motor *motor_1;
 Motor *motor_2;
@@ -54,6 +56,78 @@ void motor_3_cmd(const std_msgs::Int32 &msg){
 }
 void motor_4_cmd(const std_msgs::Int32 &msg){
   motor_4->motor_msg(msg);
+}
+
+int32_t speed_vx[2] = {0,0};
+int32_t speed_vy[2] = {0,0};
+int32_t speed_vteta[2] = {0,0};
+
+void output_speed(void){
+  int32_t speed[2];
+
+  speed[0] = speed_vx[0] + speed_vy[0] + speed_vteta[0];
+  if (speed[0] > 255) speed[0] = 255;
+  if (speed[0] < -255) speed[0] = -255;
+
+  speed[1] = speed_vx[1] + speed_vy[1] + speed_vteta[1];
+  if (speed[1] > 255) speed[1] = 255;
+  if (speed[1] < -255) speed[1] = -255;
+
+  motor_2->set_speed(speed[0]);
+  motor_3->set_speed(speed[1]);
+}
+
+void vx_cmd(const std_msgs::Int32& msg){
+  speed_vx[0] = -msg.data;
+  speed_vx[1] = msg.data;
+
+  output_speed();
+}
+
+void vy_cmd(const std_msgs::Int32& msg){
+  // int32_t speed;
+  // speed_vy = msg.data;
+
+  if (0 < msg.data) {
+    speed_vy[0] = 0;
+    speed_vy[1] = msg.data;
+
+  }
+
+  if (0 > msg.data) {
+    speed_vy[0] = msg.data;
+    speed_vy[1] = 0;
+  }
+
+  if (0 == msg.data){
+    speed_vy[0] = 0;
+    speed_vy[1] = 0;
+  }
+
+  output_speed();
+  // if (speed_vy < 0) {
+  //   speed = speed_vx - speed_vy + speed_vteta;
+  //   if (speed > 255) speed = 255;
+  //   if (speed < -255) speed = -255;
+  //   motor_2->set_speed(-speed);
+  // }
+
+  // if (0 == speed_vy) {
+  //   speed = speed_vx + speed_vy + speed_vteta;
+  //   if (speed > 255) speed = 255;
+  //   if (speed < -255) speed = -255;
+    
+  //   motor_2->set_speed(-speed);
+  //   motor_3->set_speed(speed);
+
+  // }
+}
+
+void vteta_cmd(const std_msgs::Int32& msg){
+  int32_t speed;
+  speed_vteta[0] = msg.data;
+  speed_vteta[1] = msg.data;
+  output_speed();
 }
 
 void setup() {
@@ -149,6 +223,9 @@ void setup() {
   // TCCR1B=TCCR1B&0xf8|0x01;    // Pin9,Pin10 PWM 31250Hz
   // TCCR2A = _BV(WGM21) | _BV(WGM20);
   // TCCR2B=TCCR2B&0xf8|0x01;    // Pin3,Pin11 PWM 31250Hz
+
+  my_driver = new Drive();
+  my_driver->setup(&nh, "vx_cmd", "vy_cmd", "vteta_cmd", &vx_cmd, &vy_cmd, &vteta_cmd);
 
 }
 

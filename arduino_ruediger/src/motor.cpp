@@ -31,12 +31,14 @@ void Motor::set_default_values(long pulse_pos, long position, float speed, int16
 
 void Motor::motor_msg(const std_msgs::Int32 &msg){
 
-    int32_t speed;
+    my_speed = msg.data;
+    if (my_speed > 255) my_speed = 255;
+    if (my_speed < -255) my_speed = -255;
 
-    speed = msg.data;
-    if (speed > 255) speed = 255;
-    if (speed < -255) speed = -255;
+    my_motor.runSpeed(my_speed);
+}
 
+void Motor::set_speed(int32_t speed){
     my_motor.runSpeed(speed);
 }
 
