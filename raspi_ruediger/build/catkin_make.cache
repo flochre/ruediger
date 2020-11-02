@@ -1,0 +1,2 @@
+
+-DCATKIN_DEVEL_PREFIX=/home/ubuntu/40_Git/ruediger/raspi_ruediger/devel -DCMAKE_INSTALL_PREFIX=/home/ubuntu/40_Git/ruediger/raspi_ruediger/install -G Unix Makefiles
