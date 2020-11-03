@@ -17,5 +17,8 @@ That is why there will be 2 folders
 ## Raspi_Ruediger
 ```
 ssh ubuntu@ubiquityrobot
+ssh ubuntu@ruediger
+
 rosrun rosserial_python serial_node.py /dev/ttyAMA0
+roslaunch run_ruediger first_launch.launch
 ```
