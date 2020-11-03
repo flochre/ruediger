@@ -21,4 +21,7 @@ ssh ubuntu@ruediger
 
 rosrun rosserial_python serial_node.py /dev/ttyAMA0
 roslaunch run_ruediger first_launch.launch
+
 ```
+
+https://answers.ros.org/question/10904/best-practices-for-launching-ros-on-startup/
