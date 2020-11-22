@@ -12,9 +12,9 @@ class Motor {
 
     // Infos about the encoder are importante
     // if you use the ROS API it should 16
-    std_msgs::Int16 encoder_info;
+    // std_msgs::Int16 encoder_info;
     // Else the  Makeblock kit is using long -> should be 32.
-    // std_msgs::Int32 encoder_info;
+    std_msgs::Int32 encoder_info;
 
     ros::Publisher *motor_pub;
     ros::Subscriber<std_msgs::Int32> *motor_sub;

@@ -39,7 +39,8 @@ void Motor::motor_msg(const std_msgs::Int32 &msg){
 }
 
 void Motor::set_speed(int32_t speed){
-    my_motor.runSpeed(speed);
+    // my_motor.runSpeed(speed);
+    my_motor.setMotorPwm(speed);
 }
 
 void Motor::setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb){

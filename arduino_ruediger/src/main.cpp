@@ -58,76 +58,22 @@ void motor_4_cmd(const std_msgs::Int32 &msg){
   motor_4->motor_msg(msg);
 }
 
-int32_t speed_vx[2] = {0,0};
-int32_t speed_vy[2] = {0,0};
-int32_t speed_vteta[2] = {0,0};
+void cmd_vel(const geometry_msgs::Twist my_speed){
+  int32_t speed_x;
+  int32_t speed_teta;
 
-void output_speed(void){
-  int32_t speed[2];
+  speed_x = my_speed.linear.x * 255;
+  speed_teta = my_speed.angular.z;
 
-  speed[0] = speed_vx[0] + speed_vy[0] + speed_vteta[0];
-  if (speed[0] > 255) speed[0] = 255;
-  if (speed[0] < -255) speed[0] = -255;
-
-  speed[1] = speed_vx[1] + speed_vy[1] + speed_vteta[1];
-  if (speed[1] > 255) speed[1] = 255;
-  if (speed[1] < -255) speed[1] = -255;
-
-  motor_2->set_speed(speed[0]);
-  motor_3->set_speed(speed[1]);
-}
-
-void vx_cmd(const std_msgs::Int32& msg){
-  speed_vx[0] = -msg.data;
-  speed_vx[1] = msg.data;
-
-  output_speed();
-}
-
-void vy_cmd(const std_msgs::Int32& msg){
-  // int32_t speed;
-  // speed_vy = msg.data;
-
-  if (0 < msg.data) {
-    speed_vy[0] = 0;
-    speed_vy[1] = msg.data;
-
+  if (0 == speed_x && 0 != speed_teta){
+    speed_x = speed_teta * 255 / 2;
+    motor_2->set_speed(speed_x);
+    motor_3->set_speed(speed_x);
+  } else {
+    motor_2->set_speed(-speed_x + abs(speed_x) * speed_teta / 4);
+    motor_3->set_speed(speed_x + abs(speed_x) * speed_teta / 4);
   }
-
-  if (0 > msg.data) {
-    speed_vy[0] = msg.data;
-    speed_vy[1] = 0;
-  }
-
-  if (0 == msg.data){
-    speed_vy[0] = 0;
-    speed_vy[1] = 0;
-  }
-
-  output_speed();
-  // if (speed_vy < 0) {
-  //   speed = speed_vx - speed_vy + speed_vteta;
-  //   if (speed > 255) speed = 255;
-  //   if (speed < -255) speed = -255;
-  //   motor_2->set_speed(-speed);
-  // }
-
-  // if (0 == speed_vy) {
-  //   speed = speed_vx + speed_vy + speed_vteta;
-  //   if (speed > 255) speed = 255;
-  //   if (speed < -255) speed = -255;
-    
-  //   motor_2->set_speed(-speed);
-  //   motor_3->set_speed(speed);
-
-  // }
-}
-
-void vteta_cmd(const std_msgs::Int32& msg){
-  int32_t speed;
-  speed_vteta[0] = msg.data;
-  speed_vteta[1] = msg.data;
-  output_speed();
+  
 }
 
 void setup() {
@@ -159,7 +105,8 @@ void setup() {
     8, 
     46.67, 
     1.8, 0, 1.2, 
-    0.18, 0, 0
+    // 0.18, 0, 0
+    0.18, 0.1, 0
   );
   motor_2->set_default_values(
     0, 
@@ -174,7 +121,8 @@ void setup() {
     8, 
     46.67, 
     1.8, 0, 1.2, 
-    0.18, 0, 0
+    // 0.18, 0, 0
+    0.18, 0.1, 0
   );
   motor_3->set_default_values(
     0, 
@@ -225,7 +173,7 @@ void setup() {
   // TCCR2B=TCCR2B&0xf8|0x01;    // Pin3,Pin11 PWM 31250Hz
 
   my_driver = new Drive();
-  my_driver->setup(&nh, "vx_cmd", "vy_cmd", "vteta_cmd", &vx_cmd, &vy_cmd, &vteta_cmd);
+  my_driver->setup(&nh, "cmd_vel", &cmd_vel);
 
 }
 
