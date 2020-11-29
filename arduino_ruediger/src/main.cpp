@@ -12,17 +12,12 @@
 
 #include "drive.hpp"
 #include "imu.hpp"
-#include "motor.hpp"
 #include "uss.hpp"
 
 ros::NodeHandle nh;
 
 Drive *my_driver;
 Imu *my_imu;
-Motor *motor_1;
-Motor *motor_2;
-Motor *motor_3;
-Motor *motor_4;
 Uss *my_uss;
 
 unsigned long timer_imu = 0;
@@ -32,33 +27,20 @@ unsigned long timer_uss = 0;
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
 bool blinkState = false;
 
-void isr_process_encoder1(void){
-  motor_1->isr_process_encoder();
-}
+// // void isr_process_encoder1(void){
+// //   motor_1->isr_process_encoder();
+// // }
 void isr_process_encoder2(void){
-  motor_2->isr_process_encoder();
+  my_driver->motor_2->isr_process_encoder();
 }
 void isr_process_encoder3(void){
-  motor_3->isr_process_encoder();
+  my_driver->motor_3->isr_process_encoder();
 }
-void isr_process_encoder4(void){
-  motor_4->isr_process_encoder();
-}
+// // void isr_process_encoder4(void){
+// //   motor_4->isr_process_encoder();
+// // }
 
-void motor_1_cmd(const std_msgs::Int32 &msg){
-  motor_1->motor_msg(msg);
-}
-void motor_2_cmd(const std_msgs::Int32 &msg){
-  motor_2->motor_msg(msg);
-}
-void motor_3_cmd(const std_msgs::Int32 &msg){
-  motor_3->motor_msg(msg);
-}
-void motor_4_cmd(const std_msgs::Int32 &msg){
-  motor_4->motor_msg(msg);
-}
-
-void cmd_vel(const geometry_msgs::Twist my_speed){
+void cmd_vel(const geometry_msgs::Twist &my_speed){
   int32_t speed_x;
   int32_t speed_teta;
 
@@ -67,11 +49,11 @@ void cmd_vel(const geometry_msgs::Twist my_speed){
 
   if (0 == speed_x && 0 != speed_teta){
     speed_x = speed_teta * 255 / 2;
-    motor_2->set_speed(speed_x);
-    motor_3->set_speed(speed_x);
+    my_driver->motor_2->set_speed(speed_x);
+    my_driver->motor_3->set_speed(speed_x);
   } else {
-    motor_2->set_speed(-speed_x + abs(speed_x) * speed_teta / 4);
-    motor_3->set_speed(speed_x + abs(speed_x) * speed_teta / 4);
+    my_driver->motor_2->set_speed(-speed_x + abs(speed_x) * speed_teta / 4);
+    my_driver->motor_3->set_speed(speed_x + abs(speed_x) * speed_teta / 4);
   }
   
 }
@@ -81,75 +63,17 @@ void setup() {
   delay(5);
   nh.initNode();
 
+  my_driver = new Drive();
+  my_driver->setup(&nh, "cmd_vel", &cmd_vel);
+  // my_driver->setup(&nh, "cmd_vel");
+
+  // attachInterrupt(motor_1->my_motor.getIntNum(), isr_process_encoder1, RISING);
+  attachInterrupt(my_driver->motor_2->my_motor.getIntNum(), isr_process_encoder2, RISING);
+  attachInterrupt(my_driver->motor_3->my_motor.getIntNum(), isr_process_encoder3, RISING);
+  // attachInterrupt(motor_4->my_motor.getIntNum(), isr_process_encoder4, RISING);
+
   my_imu = new Imu;
   my_imu->setup(&nh, "imu_data");
-
-  motor_1 = new Motor(SLOT1);
-  motor_1->setup(&nh, "encoder_1", "motor_1", &motor_1_cmd);
-  motor_1->configure_motor(
-    8, 
-    75, 
-    0.86, 0, 1.2, 
-    0.08, 0, 0
-  );
-  motor_1->set_default_values(
-    0, 
-    0, 10, 
-    0, 
-    DIRECT_MODE
-  );
-
-  motor_2 = new Motor(SLOT2);
-  motor_2->setup(&nh, "encoder_2", "motor_2", &motor_2_cmd);
-  motor_2->configure_motor(
-    8, 
-    46.67, 
-    1.8, 0, 1.2, 
-    // 0.18, 0, 0
-    0.18, 0.1, 0
-  );
-  motor_2->set_default_values(
-    0, 
-    0, 10, 
-    0, 
-    DIRECT_MODE
-  );
-
-  motor_3 = new Motor(SLOT3);
-  motor_3->setup(&nh, "encoder_3", "motor_3", &motor_3_cmd);
-  motor_3->configure_motor(
-    8, 
-    46.67, 
-    1.8, 0, 1.2, 
-    // 0.18, 0, 0
-    0.18, 0.1, 0
-  );
-  motor_3->set_default_values(
-    0, 
-    0, 10, 
-    0, 
-    DIRECT_MODE
-  );
-
-  motor_4 = new Motor(SLOT4);
-  motor_4->setup(&nh, "encoder_4", "motor_4", &motor_4_cmd);
-  motor_4->configure_motor(
-    8, 
-    1, 
-    0.6, 0, 1.2, 
-    0.06, 0, 0
-  );
-  motor_4->set_default_values(
-    0, 
-    0, 10, 
-    0, 
-    DIRECT_MODE
-  );
-
-  attachInterrupt(motor_1->my_motor.getIntNum(), isr_process_encoder1, RISING);
-  attachInterrupt(motor_2->my_motor.getIntNum(), isr_process_encoder2, RISING);
-  attachInterrupt(motor_3->my_motor.getIntNum(), isr_process_encoder3, RISING);
-  attachInterrupt(motor_4->my_motor.getIntNum(), isr_process_encoder4, RISING);
 
   my_uss = new Uss(PORT_7);
   my_uss->setup(&nh, "uss_data");
@@ -172,9 +96,6 @@ void setup() {
   // TCCR2A = _BV(WGM21) | _BV(WGM20);
   // TCCR2B=TCCR2B&0xf8|0x01;    // Pin3,Pin11 PWM 31250Hz
 
-  my_driver = new Drive();
-  my_driver->setup(&nh, "cmd_vel", &cmd_vel);
-
 }
 
 void loop() {
@@ -189,12 +110,10 @@ void loop() {
     my_uss->loop();
   }
 
-  motor_1->loop();
-  motor_2->loop();
-  motor_3->loop();
-  motor_4->loop();
+  my_driver->loop();
 
   nh.spinOnce();
+  delay(1);
 
   // blink LED to indicate activity
   blinkState = !blinkState;

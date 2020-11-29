@@ -6,16 +6,32 @@
 #include <std_msgs/Int32.h>
 #include <geometry_msgs/Twist.h>
 
+#include "MePort.h"
+#include "motor.hpp"
+
+void motor_2_cmd(const std_msgs::Int32 &msg);
+void motor_3_cmd(const std_msgs::Int32 &msg);
+
+void cmd_vel(const geometry_msgs::Twist &my_speed);
+
 class Drive {
 
   // Creating handlers of Node, IMU message, quaternion and ROS publisher.
   ros::NodeHandle *nh_;
   ros::Subscriber<geometry_msgs::Twist> *cmd_vel;
 
+  void cmd_vel_cb(const geometry_msgs::Twist& my_speed);
+
   public:
     Drive(void);
 
+    // Motor *motor_1;
+    Motor *motor_2;
+    Motor *motor_3;
+    // Motor *motor_4;
+
     void setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geometry_msgs::Twist>::CallbackT cb_cmd_vel);
+    // void setup(ros::NodeHandle *nh, char sub_cmd_vel[]);
     void loop(void);
 };
 
