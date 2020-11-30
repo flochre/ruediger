@@ -14,6 +14,12 @@ That is why there will be 2 folders
 
 ## Arduino_Ruediger
 
+Choose you baudrate wisely :)
+http://ruemohr.org/~ircjunk/avr/baudcalc/avrbaudcalc-1.0.8.php
+
+MegaPi is using a ATMEGA2560-16AU -> 16MHz 
+38400 or 76800 Bauds is a good idea to use :)
+
 ## Raspi_Ruediger
 ```
 ssh ubuntu@ubiquityrobot
