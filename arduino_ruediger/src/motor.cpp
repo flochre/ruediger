@@ -42,14 +42,13 @@ void Motor::set_speed(int32_t speed){
     my_motor.setMotorPwm(speed);
 }
 
-void Motor::setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb){
+void Motor::setup(ros::NodeHandle *nh, char publisher_name[]){
     nh_ = nh;
 
     motor_pub = new ros::Publisher(publisher_name, &encoder_info);
     nh_->advertise(*motor_pub);
 
-    motor_sub = new ros::Subscriber<std_msgs::Int32>(subscriber_name, cb);
-    nh_->subscribe(*motor_sub);
+    motor_sub = NULL;
 
     // Configure motor
     configure_motor(
@@ -58,7 +57,6 @@ void Motor::setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_na
         1.8, 0, 1.2, 
         0.18, 0, 0
     );
-
     // Reset Default values
     set_default_values(
         0, 
@@ -66,6 +64,13 @@ void Motor::setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_na
         0, 
         DIRECT_MODE
     );
+}
+
+void Motor::setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb){
+    setup(nh, publisher_name);
+
+    motor_sub = new ros::Subscriber<std_msgs::Int32>(subscriber_name, cb);
+    nh_->subscribe(*motor_sub);
 }
 
 void Motor::loop(void){

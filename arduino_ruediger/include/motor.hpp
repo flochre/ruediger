@@ -34,6 +34,7 @@ class Motor {
   public:
     Motor(void);
     Motor(uint8_t slot);
+    void setup(ros::NodeHandle *nh, char publisher_name[]);
     void setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb);
     void loop(void);
 };

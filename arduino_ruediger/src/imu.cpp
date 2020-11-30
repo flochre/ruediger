@@ -1,6 +1,11 @@
 #include "imu.hpp"
 
 Imu::Imu(void) {
+    timer = 0;
+}
+
+unsigned long Imu::read_timer(void){
+    return timer;
 }
 
 void Imu::setup(ros::NodeHandle *nh, char topic_name[]){
@@ -10,6 +15,8 @@ void Imu::setup(ros::NodeHandle *nh, char topic_name[]){
     imu_pub = new ros::Publisher(topic_name, &imu_msgs);          
     nh_->advertise(*imu_pub);
 
+    imu_msgs.header.frame_id = frameid;
+
     // Init Gyroscope
     gyro = new MeGyro;
     gyro->begin();
@@ -18,7 +25,7 @@ void Imu::setup(ros::NodeHandle *nh, char topic_name[]){
 }
 
 void Imu::loop(void)     {
-    
+    timer = millis();
     gyro->update();
     q = gyro->GetQuaternion();
 
@@ -27,7 +34,7 @@ void Imu::loop(void)     {
     orient.y = q.y;
     orient.z = q.z;
     orient.w = q.w;
-    imu_msgs.header.frame_id = frameid;
+    imu_msgs.header.stamp = nh_->now();
     imu_msgs.orientation = orient;
     imu_pub->publish(&imu_msgs);
 

@@ -13,9 +13,12 @@
 #include <geometry_msgs/Quaternion.h>
 #include <tf/transform_broadcaster.h>
 
+#define TIMER_IMU 50
+
 class Imu {
 //    public: 
 
+    unsigned long timer;
     // These are the object handlers of TF message and broadcaster 
     geometry_msgs::TransformStamped t;
     tf::TransformBroadcaster *broadcaster;
@@ -44,6 +47,7 @@ class Imu {
 
   public:
     Imu(void);
+    unsigned long read_timer(void);
     void setup(ros::NodeHandle *nh, char topic_name[] = "imu_data");
     void loop(void);
 };
