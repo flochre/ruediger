@@ -61,19 +61,15 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
 
   //Set PWM 8KHz
-  TCCR1A = _BV(WGM10);
-  TCCR1B = _BV(CS11) | _BV(WGM12);
-
-  TCCR2A = _BV(WGM21) | _BV(WGM20);
-  TCCR2B = _BV(CS21);
-
-  // sample code from https://openclassrooms.com/forum/sujet/pilotage-d-une-base-holonome-3-roues to be tested
-  //Set PWM 31KHz
-  // Not Working
+  // Timer 1: WGM(2:0) = 0b 101 = 5 -> PWM, Phase Correct
+  // Timer 1: CS(2:0) = 0b 010 = 2 -> Prescaler 8
   // TCCR1A = _BV(WGM10);
-  // TCCR1B=TCCR1B&0xf8|0x01;    // Pin9,Pin10 PWM 31250Hz
+  // TCCR1B = _BV(CS11) | _BV(WGM12);
+
+  // Timer 2: WGM(2:0) = 0b 011 = 3 -> Fast PWM
+  // Timer 2: CS(2:0) = 0b 010 = 2 -> Prescaler 8
   // TCCR2A = _BV(WGM21) | _BV(WGM20);
-  // TCCR2B=TCCR2B&0xf8|0x01;    // Pin3,Pin11 PWM 31250Hz
+  // TCCR2B = _BV(CS21);
 
 }
 
