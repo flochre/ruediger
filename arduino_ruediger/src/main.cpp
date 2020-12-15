@@ -41,6 +41,7 @@ void cmd_vel(const geometry_msgs::Twist &my_speed){
 void setup() {
   // put your setup code here, to run once:
   delay(5);
+
   nh.initNode();
 
   my_driver = new Drive();
@@ -59,17 +60,6 @@ void setup() {
   
   // configure LED for output
   pinMode(LED_PIN, OUTPUT);
-
-  //Set PWM 8KHz
-  // Timer 1: WGM(2:0) = 0b 101 = 5 -> PWM, Phase Correct
-  // Timer 1: CS(2:0) = 0b 010 = 2 -> Prescaler 8
-  // TCCR1A = _BV(WGM10);
-  // TCCR1B = _BV(CS11) | _BV(WGM12);
-
-  // Timer 2: WGM(2:0) = 0b 011 = 3 -> Fast PWM
-  // Timer 2: CS(2:0) = 0b 010 = 2 -> Prescaler 8
-  // TCCR2A = _BV(WGM21) | _BV(WGM20);
-  // TCCR2B = _BV(CS21);
 
 }
 

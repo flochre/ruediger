@@ -54,9 +54,9 @@ Timer 2 : Pin 9 10      (PORT3)
 Timer 3 : Pin 2 3 5     (PORT4)
 Timer 4 : Pin 6 7 8     (PORT2)
 
-TCCR1A  COM1A1  COM1A0  COM1B1  COM1B0  COM1C1  COM1C0  WGM11   WGM10
-TCCR1B  ICNC1   ICES1   -       WGM13   WGM12   CS12    CS11    CS10
-TCCR1C  FOC1A   FOC1B   FOC1C   -       -       -       -       -
+|TCCR1A | COM1A1 | COM1A0 | COM1B1 | COM1B0 | COM1C1 | COM1C0 | WGM11  | WGM10 | 
+|TCCR1B | ICNC1  | ICES1  | -      | WGM13  | WGM12  | CS12   | CS11   | CS10  | 
+|TCCR1C | FOC1A  | FOC1B  | FOC1C  | -      | -      | -      | -      | - | 
 
 TCCR2A  COM2A1  COM2A0  COM2B1  COM2B0  -       -       WGM21   WGM20
 TCCR2B  FOC2A   FOC2B   -       -       WGM22   CS22    CS21    CS20
@@ -153,3 +153,17 @@ Mode WGM2 WGM1 WGM0 Timer/Counter
 5 1 0 1 PWM, Phase Correct OCRA TOP BOTTOM
 6 1 1 0 Reserved – – –
 7 1 1 1 Fast PWM OCRA BOTTOM TOP
+
+Explaination of the original code 
+```
+// Set PWM 8KHz
+// Timer 1: WGM(3:0) = 0b 0101 = 5 -> PWM, Phase Correct 8 bits
+// Timer 1: CS(2:0) = 0b 010 = 2 -> Prescaler 8
+TCCR1A = _BV(WGM10);
+TCCR1B = _BV(CS11) | _BV(WGM12);
+
+// Timer 2: WGM(2:0) = 0b 011 = 3 -> Fast PWM
+// Timer 2: CS(2:0) = 0b 010 = 2 -> Prescaler 8
+TCCR2A = _BV(WGM21) | _BV(WGM20);
+TCCR2B = _BV(CS21);
+```
