@@ -87,13 +87,13 @@
 #define PORT4A  PORT_4
 #define PORT4B  PORT_12
 
- MePort_Sig mePort[17] =
- {
-   { NC, NC }, {  NC,  NC }, {  NC,  NC }, {  NC,  NC }, {  NC,  NC }, 
-   { 16, 17 }, {  A8,  A9 }, { A10, A11 }, { A13, A12 }, {  NC,  NC }, 
-   { NC, NC }, {  NC,  NC }, {  NC,  NC }, {  NC,  NC }, {  NC,  NC },
-   { NC, NC },{ NC, NC },
- };
+MePort_Sig mePort[17] =
+{
+  { NC, NC }, {  NC,  NC }, {  NC,  NC }, {  NC,  NC }, {  NC,  NC }, 
+  { 16, 17 }, {  A8,  A9 }, { A10, A11 }, { A13, A12 }, {  NC,  NC }, 
+  { NC, NC }, {  NC,  NC }, {  NC,  NC }, {  NC,  NC }, {  NC,  NC },
+  { NC, NC }, {  NC,  NC },
+};
 
 Encoder_port_type encoder_Port[6] =
 {

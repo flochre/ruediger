@@ -12,6 +12,8 @@
 #include "uss.hpp"
 
 ros::NodeHandle nh;
+String logInfoStr;
+String logWarnStr;
 
 Drive *my_driver;
 Imu *my_imu;
@@ -19,6 +21,8 @@ Uss *my_uss;
 
 //Defining an LED pin to show the status of IMU data read
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
+#define TIMER_LED 250
+unsigned long timer_led = 0;
 bool blinkState = false;
 
 void isr_process_encoder1(void){
@@ -65,22 +69,37 @@ void setup() {
 
 void loop() {
   // Manage Timers to read the sensors data  
-  if (millis() > my_imu->read_timer() + TIMER_IMU){
+  if (millis() >= my_imu->read_timer() + TIMER_IMU){
+    // logInfoStr = "IMU loop : " + String(millis() - my_imu->read_timer());
     my_imu->loop();
   }
   
-  if (millis() > my_uss->read_timer() + TIMER_USS){
+  if (millis() >= my_uss->read_timer() + TIMER_USS){
+    // logInfoStr = "USS loop : " + String(millis() - my_uss->read_timer());
     my_uss->loop();
   }
 
-  if (millis() > my_driver->read_timer() + TIMER_DRIVER){
+  if (millis() >= my_driver->read_timer() + TIMER_DRIVER){
+    // logInfoStr = "Driver loop : " + String(millis() - my_driver->read_timer());
     my_driver->loop();
   }
 
+
   nh.spinOnce();
 
-  // blink LED to indicate activity
-  blinkState = !blinkState;
-  digitalWrite(LED_PIN, blinkState);
+  // nh.logdebug("Debug Statement");
+  // nh.loginfo("Program info");
+  // nh.loginfo(logInfoStr.c_str());
+  // nh.logwarn("Warnings.");
+  // nh.logerror("Errors..");
+  // nh.logfatal("Fatalities!");
+
+  if (millis() >= timer_led + TIMER_LED){
+    timer_led = millis();
+    // blink LED to indicate activity
+    blinkState = !blinkState;
+    digitalWrite(LED_PIN, blinkState);
+  }
+  
 
 }

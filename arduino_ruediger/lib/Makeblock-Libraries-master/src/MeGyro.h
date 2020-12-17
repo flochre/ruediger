@@ -62,6 +62,7 @@
 #endif // ME_PORT_DEFINED
 
 #include "helper_3dmath.h"
+#include "MPU6050_6Axis_MotionApps20.h"
 
 /* Exported macro ------------------------------------------------------------*/
 #define I2C_ERROR                  (-1)
@@ -159,7 +160,8 @@ public:
  * \par Others
  *   You can check the MPU6050 datasheet for the registor address.
  */
-  void begin();
+  // void begin();
+  void begin(uint8_t accel_config = MPU6050_ACCEL_FS_2, uint8_t gyro_config = MPU6050_GYRO_FS_500);
 
 /**
  * \par Function
@@ -196,6 +198,8 @@ public:
  *   so the filter coefficient will be calculated dynamically.
  */
   void fast_update(void);
+
+  void read_mpu_6050_data(void);
 
 /**
  * \par Function
@@ -295,6 +299,22 @@ public:
 
 /**
  * \par Function
+ *   getGyroZ
+ * \par Description
+ *   Get the data of gyroYrate.
+ * \param[in]
+ *   None
+ * \par Output
+ *   None
+ * \return
+ *   The data of gyroYrate
+ * \par Others
+ *   None
+ */
+  double getGyroZ(void);
+
+/**
+ * \par Function
  *   getAngle
  * \par Description
  *   Get the angle value of setting axis.
@@ -310,25 +330,46 @@ public:
   double getAngle(uint8_t index);
   Quaternion GetQuaternion();
 
+  uint8_t getQuaternion(Quaternion *q);
+  uint8_t getQuaternion(Quaternion *q, double yaw, double pitch, double roll);
+  uint8_t getGravity(VectorFloat *v, Quaternion *q);
 
+  double getAccX(void);
+  double getAccY(void);
+  double getAccZ(void);
 
+  double get_aSensitivity();
+  double get_gSensitivity();
 
 private:
   volatile uint8_t  _AD0;
   volatile uint8_t  _INT;
-  double  gSensitivity; /* for 500 deg/s, check data sheet */
+  double  aSensitivity, aSensitivity_si; /* for 2g, check data sheet AFS_SEL = 0 Register 28 (0x1c) */
+  double  gSensitivity, gSensitivity_si; /* for 500 deg/s, check data sheet */
+  double  ax, ay, az;
   double  gx, gy, gz;
+  double  accX, accY, accZ;
   double  gyrX, gyrY, gyrZ;
-  int16_t accX, accY, accZ;
-  double  gyrXoffs, gyrYoffs, gyrZoffs;
+  // double  accXoffs, accYoffs, accZoffs;
+  // long  gyrXoffs, gyrYoffs, gyrZoffs;
+  boolean set_gyro_angles;
+  double acc_x, acc_y, acc_z, acc_total_vector;
+  long acc_x_cal, acc_y_cal, acc_z_cal;
+  double temperature;
+  double gyro_x, gyro_y, gyro_z;
+  long gyro_x_cal, gyro_y_cal, gyro_z_cal;
+  double angle_pitch, angle_yaw, angle_roll;
+  double angle_pitch_output, angle_yaw_output, angle_roll_output;
+  double angle_pitch_acc, angle_yaw_acc, angle_roll_acc;
+  VectorFloat gravity_calib;
   uint8_t i2cData[14];
   uint8_t Device_Address;
+  // unsigned long	last_time;
 
   Quaternion q;
 
-  
-  uint8_t dmpGetQuaternion(int16_t *data, const uint8_t* packet);
-  uint8_t dmpGetQuaternion(Quaternion *q, const uint8_t* packet);
+  double set_aSensitivity(uint8_t accel_config);
+  double set_gSensitivity(uint8_t gyro_config);
 
 
 /**
@@ -346,7 +387,7 @@ private:
  *   The calibration function will be called in initial process, please keep the 
  *   device in a rest status at that time.
  */
-  void deviceCalibration(void);
+  void deviceCalibration(uint16_t calibration_iterations = 2000);
 
 /**
  * \par Function

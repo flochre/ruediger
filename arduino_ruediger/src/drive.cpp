@@ -81,8 +81,6 @@ void Drive::setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geome
     TCCR4B = _BV(CS40);
     TCCR4C = 0;
 
-
-
     motor_1 = new Motor(SLOT1);
     motor_1->setup(nh, "encoder_1");
     motor_1->configure_motor(

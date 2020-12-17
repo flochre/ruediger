@@ -80,11 +80,14 @@ class ArduinoHardware {
 #endif
       // baud_ = 31250; // Cristal
       // baud_ = 38400; // Error 0.2 %
-      baud_ = 40000; // Cristal
+      // baud_ = 40000; // Cristal
       // baud_ = 57600; // Error 2.1 %
       // baud_ = 62500; // Cristal
       // baud_ = 76800; // Error 0.2 %
       // baud_ = 100000; // Cristal
+      // baud_ = 125000; // Cristal
+      // baud_ = 200000; // Cristal
+      baud_ = 333333.33; // Cristal
     }
     ArduinoHardware(ArduinoHardware& h){
       this->iostream = h.iostream;

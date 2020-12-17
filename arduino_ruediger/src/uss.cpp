@@ -23,9 +23,9 @@ void Uss::setup(ros::NodeHandle *nh, char topic_name[]){
 
     uss_msg.radiation_type = sensor_msgs::Range::ULTRASOUND;
     uss_msg.header.frame_id =  topic_name;
-    uss_msg.field_of_view = 0.52; // radians - about 30 degree
-    uss_msg.min_range = 0.035;   // 3.5cm
-    uss_msg.max_range = 4.0;     // 4m
+    uss_msg.field_of_view = 0.52;   // radians - about 30 degrees
+    uss_msg.min_range = 0.035;      // 3.5cm
+    uss_msg.max_range = 4.0;        // 4m
 }
 
 void Uss::loop(void){
