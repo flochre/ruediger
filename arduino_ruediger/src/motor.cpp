@@ -6,6 +6,10 @@ Motor::Motor(uint8_t slot){
     my_motor.reset(slot);
 }
 
+void Motor::reset(uint8_t slot){
+    my_motor.reset(slot);
+}
+
 void Motor::isr_process_encoder(void){
   if(digitalRead(my_motor.getPortB()) == 0){
     my_motor.pulsePosMinus();
@@ -38,8 +42,6 @@ void Motor::motor_msg(const std_msgs::Int32 &msg){
 }
 
 void Motor::set_speed(int32_t speed){
-    // my_motor.runSpeed(speed);
-    // my_motor.setMotorPwm(speed);
     my_motor.setTarPWM(speed);
 }
 

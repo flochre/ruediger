@@ -1,15 +1,268 @@
 #include "imu.hpp"
 
 Imu::Imu(void) {
-    timer = 0;
-    // sensorPin = A9;
-    sensorPin = mePort[6].s2;
-    mpuInterrupt = false;
-    dmpReady = false;
+    timer = millis();
+    device_address = MPU6050_DEFAULT_ADDRESS;
+}
+
+void Imu::begin(uint8_t accel_config, uint8_t gyro_config) {
+    aSensitivity = set_aSensitivity(accel_config);
+    gSensitivity = set_gSensitivity(gyro_config);
+
+    set_gyro_angles = false;
+    angle_pitch = 0, angle_yaw = 0, angle_roll = 0;
+    angle_pitch_acc = 0, angle_yaw_acc = 0, angle_roll_acc = 0;
+
+
+    Wire.begin();
+
+    delay(200);
+    //close the sleep mode
+    I2Cdev::writeByte(device_address, MPU6050_RA_PWR_MGMT_1, 0x00);
+
+    delay(100);
+    //configurate the digital low pass filter
+    I2Cdev::writeByte(device_address, MPU6050_RA_CONFIG, 0x01);
+  
+    //set the accel scale
+    I2Cdev::writeBits(device_address, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, accel_config);
+    //set the gyro scale
+    I2Cdev::writeBits(device_address, MPU6050_RA_GYRO_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, gyro_config);
+  
+    delay(100);
+    calibrate(200);
+
+}
+
+void Imu::calibrate(uint16_t calibration_iterations)
+{
+    acc_x_cal = 0, acc_y_cal = 0, acc_z_cal = 0;
+    gyro_x_cal = 0, gyro_y_cal = 0, gyro_z_cal = 0;
+
+    for (size_t i = 0; i < calibration_iterations; i++) {
+        read_mpu_6050_data();
+        acc_x_cal += acc_x;
+        acc_y_cal += acc_y;
+        acc_z_cal += acc_z;
+
+        gyro_x_cal += gyro_x;
+        gyro_y_cal += gyro_y;
+        gyro_z_cal += gyro_z;
+        delay(3);
+    }
+    
+    acc_x_cal /= calibration_iterations;
+    acc_y_cal /= calibration_iterations;
+    acc_z_cal /= calibration_iterations;
+    
+    gyro_x_cal /= calibration_iterations;
+    gyro_y_cal /= calibration_iterations;
+    gyro_z_cal /= calibration_iterations;
+
+}
+
+void Imu::read_mpu_6050_data(void){
+    /* read imu data */
+    if(!I2Cdev::readBytes(device_address, MPU6050_RA_ACCEL_XOUT_H, I2C_BUFFER_SIZE, i2cData)) {
+        return;
+    }
+
+    acc_x   = ( (i2cData[0] << 8) | i2cData[1] );
+    acc_y   = ( (i2cData[2] << 8) | i2cData[3] );
+    acc_z   = ( (i2cData[4] << 8) | i2cData[5] );
+
+    temperature = ( (i2cData[6] << 8) | i2cData[7] );
+
+    gyro_x  = ( (i2cData[8] << 8)  | i2cData[9]  );
+    gyro_y  = ( (i2cData[10] << 8) | i2cData[11] );
+    gyro_z  = ( (i2cData[12] << 8) | i2cData[13] );
+}
+
+double Imu::get_aSensitivity(void){
+  return gSensitivity;
+}
+
+double Imu::set_aSensitivity(uint8_t accel_config){
+  switch (accel_config) {
+    case MPU6050_ACCEL_FS_2:
+      aSensitivity = 16384.0;
+      break;
+    
+    case MPU6050_ACCEL_FS_4:
+      aSensitivity = 8192.0;
+      break;
+
+    case MPU6050_ACCEL_FS_8:
+      aSensitivity = 4096.0;
+      break;
+
+    case MPU6050_ACCEL_FS_16:
+      aSensitivity = 2048.0;
+      break;
+
+    default:
+      aSensitivity = 16384.0;
+      break;
+  }
+
+  aSensitivity_si = aSensitivity / 9.8; // LSB/g to LSB/ms-2 
+
+  return aSensitivity;
+}
+
+double Imu::get_gSensitivity(void){
+  return gSensitivity;
+}
+
+double Imu::set_gSensitivity(uint8_t gyro_config){
+  switch (gyro_config)
+  {
+    case MPU6050_GYRO_FS_250:
+      gSensitivity = 131.0;
+      break;
+    
+    case MPU6050_GYRO_FS_500:
+      gSensitivity = 65.5;
+      break;
+
+    case MPU6050_GYRO_FS_1000:
+      gSensitivity = 32.8;
+      break;
+
+    case MPU6050_GYRO_FS_2000:
+      gSensitivity = 16.4;
+      break;
+
+    default:
+      gSensitivity = 65.5;
+      break;
+  }
+
+  gSensitivity_si = gSensitivity * 180 / M_PI; // LSB/°/s to LSB / rad / s 
+
+  return gSensitivity;
 }
 
 unsigned long Imu::read_timer(void){
     return timer;
+}
+
+static inline int8_t sgn(int val) {
+    if (val < 0) return -1;
+    if (val==0) return 0;
+    return 1;
+}
+
+void Imu::update(float tau) {
+    static unsigned long	last_time = micros();
+    double dt, filter_coefficient;
+    
+    dt = (double)(micros() - last_time) * 0.000001; // dt in secondes
+    last_time = micros();
+    read_mpu_6050_data();
+
+    gyro_x -= gyro_x_cal;   //Subtract the offset calibration value from the raw gyro_x value
+    gyro_y -= gyro_y_cal;   //Subtract the offset calibration value from the raw gyro_y value
+    gyro_z -= gyro_z_cal;   //Subtract the offset calibration value from the raw gyro_z value
+
+    gyro_x /= gSensitivity_si;
+    gyro_y /= gSensitivity_si;
+    gyro_z /= gSensitivity_si;
+
+    // angle_yaw += gyro_z / gSensitivity_si * dt;
+    angle_yaw += gyro_z * dt;
+    angle_yaw = angle_yaw - (2 * M_PI) * floor(angle_yaw / (2 * M_PI));
+    // to get yaw between [-M_PI; M_PI]
+    if(angle_yaw > M_PI){
+        angle_yaw -= 2 * M_PI;
+    } 
+
+    if (acc_z > 0) {
+        angle_pitch += gyro_y * dt;
+        angle_roll  += gyro_x * dt;
+    } else {
+        angle_pitch -= gyro_y * dt;
+        angle_roll  -= gyro_x * dt;
+    }
+
+    angle_pitch -= angle_roll * sin(gyro_z * dt);
+    angle_roll  += angle_pitch * sin(gyro_z * dt);
+
+    // //Accelerometer angle calculations
+    acc_total_vector = sqrt((acc_x*acc_x)+(acc_y*acc_y)+(acc_z*acc_z));
+    angle_pitch_acc = -asin((float)acc_x/acc_total_vector);      // Calculate the pitch angle based on acceleration
+    angle_roll_acc  =  asin((float)acc_y/acc_total_vector);      // Calculate the roll angle based on acceleration
+    
+    // Set acceleration values
+    if(set_gyro_angles){
+        acc_x -= acc_x_cal + gravity_calib[0] ;
+        acc_y -= acc_y_cal + gravity_calib[1] ;
+        acc_z -= acc_z_cal + gravity_calib[2] ; 
+    }
+
+    acc_x /= aSensitivity_si;
+    acc_y /= aSensitivity_si;
+    acc_z /= aSensitivity_si;
+
+    /*
+        complementary filter
+        set 0.5sec = tau = dt * A / (1 - A)
+        so A = tau / (tau + dt)
+    */
+
+    // float tau = 0.5;
+    filter_coefficient = tau / (tau + dt);
+    filter_coefficient = 0.9996;
+
+    if(set_gyro_angles){
+        angle_roll = angle_roll * filter_coefficient + angle_roll_acc * (1 - filter_coefficient);
+        angle_pitch = angle_pitch * filter_coefficient + angle_pitch_acc * (1 - filter_coefficient);
+    } else {                                                                
+        //At first start
+        angle_pitch = angle_pitch_acc;                                     //Set the gyro pitch angle equal to the accelerometer pitch angle 
+        angle_roll = angle_roll_acc;                                       //Set the gyro roll angle equal to the accelerometer roll angle 
+        angle_yaw = 0;
+        set_gyro_angles = true;
+
+        // Calculate init quaternion, to get the init gravitation
+        get_quaternion(&imu_msgs.orientation);
+        get_gravity(gravity_calib, &imu_msgs.orientation);
+    }
+
+    // filter_coefficient = 0.8;
+    filter_coefficient = tau / (tau + dt);
+    angle_pitch_output  = angle_pitch_output * filter_coefficient + angle_pitch * (1 - filter_coefficient);   //Take 90% of the output pitch value and add 10% of the raw pitch value
+    angle_roll_output   = angle_roll_output * filter_coefficient + angle_roll * (1 - filter_coefficient);
+    // angle_yaw_output    = sgn(angle_yaw) * (abs(angle_yaw_output) * filter_coefficient + abs(angle_yaw) * (1 - filter_coefficient));
+    angle_yaw_output    = angle_yaw;
+}
+
+uint8_t Imu::get_quaternion(geometry_msgs::Quaternion *q){
+    return get_quaternion(q, angle_yaw_output, angle_pitch_output, angle_roll_output);
+}
+
+uint8_t Imu::get_quaternion(geometry_msgs::Quaternion *q, double yaw, double pitch, double roll){
+    // Abbreviations for the various angular functions
+    double cy = cos(yaw * 0.5);
+    double sy = sin(yaw * 0.5);
+    double cp = cos(pitch * 0.5);
+    double sp = sin(pitch * 0.5);
+    double cr = cos(roll * 0.5);
+    double sr = sin(roll * 0.5);
+
+    // Quaternion q;
+    q->w = cr * cp * cy + sr * sp * sy;
+    q->x = sr * cp * cy - cr * sp * sy;
+    q->y = cr * sp * cy + sr * cp * sy;
+    q->z = cr * cp * sy - sr * sp * cy;
+    return 0;
+}
+
+uint8_t Imu::get_gravity(float *v, geometry_msgs::Quaternion *q) {
+    v[0] = 2 * (q->x * q->z - q->w * q->y);
+    v[1] = 2 * (q->w * q->x + q->y * q->z);
+    v[2] = q->w * q->w - q->x * q->x - q->y * q->y + q->z * q->z;
+    return 0;
 }
 
 void Imu::setup(ros::NodeHandle *nh, char topic_name[]){
@@ -21,194 +274,47 @@ void Imu::setup(ros::NodeHandle *nh, char topic_name[]){
 
     imu_msgs.header.frame_id = frame_id.c_str();
 
-    #ifdef DEBUG
-        Serial.begin(115200);
-        while (!Serial);
-    #endif
-
     // Init Gyroscope
-    #ifndef MPU
-    gyro = new MeGyro;
-    gyro->begin();
-    packetSize = 42;
-    #endif
-
-    #ifdef MPU
-    Wire.begin();
-    DEBUG_PRINTLN(F("Debug Started :)"));
-    mpu.initialize();
-    
-    devStatus = mpu.dmpInitialize();
-    // make sure it worked (returns 0 if so)
-    if (devStatus == 0) {
-        // turn on the DMP, now that it's ready
-        mpu.setDMPEnabled(true);
-
-        mpuIntStatus = mpu.getIntStatus();
-
-        // set our DMP Ready flag so the main loop() function knows it's okay to use it
-        dmpReady = true;
-
-        // get expected DMP packet size for later comparison
-        packetSize = mpu.dmpGetFIFOPacketSize();
-    } 
-    #endif
+    begin(MPU6050_ACCEL_FS_2, MPU6050_GYRO_FS_500);
 }
 
 void Imu::loop(void) {
-    // DEBUG_PRINT(F("Cycle IMU:"));
-    // DEBUG_PRINTLN(millis()-timer);
     timer = millis();
 
-    #ifdef MPU
-    mpu.resetFIFO();
-    if (!dmpReady) return;
-
-    mpuIntStatus = mpu.getIntStatus();
-
-    // get current FIFO count
-    fifoCount = mpu.getFIFOCount();
-    DEBUG_PRINT(F("current FIFO count :"));
-    DEBUG_PRINTLN(fifoCount);
-
-    // check for overflow (this should never happen unless our code is too inefficient)
-    if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
-        // reset so we can continue cleanly
-        mpu.resetFIFO();
-
-        DEBUG_PRINTLN(F("FIFO Overflow"));
-
-    // otherwise, check for DMP data ready interrupt (this should happen frequently)
-    } else if (mpuIntStatus & 0x01) {
-        // wait for correct available data length, should be a VERY short wait
-        while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
-
-        // read a packet from FIFO
-        mpu.getFIFOBytes(fifoBuffer, packetSize);
-
-        // #ifdef DEBUG
-        // for (size_t i = 0; i < fifoCount; i++)
-        // {
-        //     DEBUG_PRINT(fifoBuffer[i]);
-        // }
-        // DEBUG_PRINTLN();
-        // #endif
-        
-        
-        
-        // track FIFO count here in case there is > 1 packet available
-        // (this lets us immediately read more without waiting for an interrupt)
-        // fifoCount -= packetSize;
-        // mpu.resetFIFO();
-        // fifoCount = 0;
-
-        mpu.dmpGetQuaternion(&q, fifoBuffer);
-        mpu.dmpGetAccel(&aa, fifoBuffer);
-        mpu.dmpGetGravity(&gravity, &q);
-        mpu.dmpGetGyro(ypr_rate, fifoBuffer);
-        // mpu.dmpGetEuler(euler, &q);
-        // mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-        mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-
-        imu_msgs.header.stamp = nh_->now();
-
-        // //Assigning quaternion to IMU message and publishing the values
-        imu_msgs.orientation.x = q.x;
-        imu_msgs.orientation.y = q.y;
-        imu_msgs.orientation.z = q.z;
-        imu_msgs.orientation.w = q.w;
-
-        // imu_msgs.angular_velocity.x = ypr[2]* 180/M_PI;
-        // imu_msgs.angular_velocity.y = ypr[1]* 180/M_PI;
-        // imu_msgs.angular_velocity.z = ypr[0]* 180/M_PI;
-
-        imu_msgs.angular_velocity.x = ypr_rate[0];
-        imu_msgs.angular_velocity.y = ypr_rate[1];
-        imu_msgs.angular_velocity.z = ypr_rate[2];
-
-        // imu_msgs.angular_velocity.x = euler[0]* 180/M_PI;
-        // imu_msgs.angular_velocity.y = euler[1]* 180/M_PI;
-        // imu_msgs.angular_velocity.z = euler[2]* 180/M_PI;
-
-        // // uint8_t buffer[14];
-        // // I2Cdev::readByte(MPU6050_DEFAULT_ADDRESS, MPU6050_RA_GYRO_CONFIG, buffer);
-        // // imu_msgs.linear_acceleration.x = buffer[0];
-        // // imu_msgs.linear_acceleration.y = buffer[1];
-        // // I2Cdev::readByte(MPU6050_DEFAULT_ADDRESS, MPU6050_RA_ACCEL_CONFIG, buffer);
-        // // imu_msgs.linear_acceleration.z = buffer[0];
-
-        // imu_msgs.linear_acceleration.x = aaReal.x / 16384.0 * 9.8 ;
-        // imu_msgs.linear_acceleration.y = aaReal.y / 16384.0 * 9.8 ;
-        // imu_msgs.linear_acceleration.z = aaReal.z / 16384.0 * 9.8;       
-
-        // imu_msgs.linear_acceleration.x = aaReal.x ;
-        // imu_msgs.linear_acceleration.y = aaReal.y ;
-        // imu_msgs.linear_acceleration.z = aaReal.z ;       
-
-        imu_msgs.linear_acceleration.x = aa.x / 16384.0 * 9.8 ;
-        imu_msgs.linear_acceleration.y = aa.y / 16384.0 * 9.8 ;
-        imu_msgs.linear_acceleration.z = aa.z / 16384.0 * 9.8;  
-        
-        // imu_msgs.linear_acceleration.x = gravity.x;
-        // imu_msgs.linear_acceleration.y = gravity.y;
-        // imu_msgs.linear_acceleration.z = gravity.z;
-
-        imu_pub->publish(&imu_msgs);
-    }
-    #endif
-
-    #ifndef MPU
-    gyro->update();
+    update();
     imu_msgs.header.stamp = nh_->now();
 
+    get_quaternion(&imu_msgs.orientation);
 
-    gyro->getQuaternion(&q);
-    imu_msgs.orientation.x = q.x;
-    imu_msgs.orientation.y = q.y;
-    imu_msgs.orientation.z = q.z;
-    imu_msgs.orientation.w = q.w;
+    get_gravity(gravity, &imu_msgs.orientation);
 
-    gyro->getGravity(&gravity, &q);
+    // double covariance_factor = TIMER_IMU * 0.001 * 0.2 * 0.01 * 250;
+    // double covariance = (covariance_factor * M_PI / 180) * (covariance_factor * M_PI / 180);
+    // imu_msgs.orientation_covariance[0] = covariance;
+    // imu_msgs.orientation_covariance[1] = covariance;
+    // imu_msgs.orientation_covariance[2] = covariance;
+    // imu_msgs.orientation_covariance[3] = covariance;
+    // imu_msgs.orientation_covariance[4] = covariance;
+    // imu_msgs.orientation_covariance[5] = covariance;
+    // imu_msgs.orientation_covariance[6] = covariance;
+    // imu_msgs.orientation_covariance[7] = covariance;
+    // imu_msgs.orientation_covariance[8] = covariance;
 
-    double covariance_factor = TIMER_IMU * 0.001 * 0.2 * 0.01 * 250;
-    double covariance = (covariance_factor * M_PI / 180) * (covariance_factor * M_PI / 180);
-    imu_msgs.orientation_covariance[0] = covariance;
-    imu_msgs.orientation_covariance[1] = covariance;
-    imu_msgs.orientation_covariance[2] = covariance;
-    imu_msgs.orientation_covariance[3] = covariance;
-    imu_msgs.orientation_covariance[4] = covariance;
-    imu_msgs.orientation_covariance[5] = covariance;
-    imu_msgs.orientation_covariance[6] = covariance;
-    imu_msgs.orientation_covariance[7] = covariance;
-    imu_msgs.orientation_covariance[8] = covariance;
+    imu_msgs.angular_velocity.x = angle_roll_output * 180 / M_PI;
+    imu_msgs.angular_velocity.y = angle_pitch_output * 180 / M_PI;
+    imu_msgs.angular_velocity.z = angle_yaw_output * 180 / M_PI;
 
-    imu_msgs.angular_velocity.x = gyro->getGyroX();
-    imu_msgs.angular_velocity.y = gyro->getGyroY();
-    imu_msgs.angular_velocity.z = gyro->getGyroZ();
+    // imu_msgs.angular_velocity.x = gyro_x;
+    // imu_msgs.angular_velocity.y = gyro_y;
+    // imu_msgs.angular_velocity.z = gyro_z;
 
-    // imu_msgs.angular_velocity.x = gyro->getAngleX() * 180 / M_PI;
-    // imu_msgs.angular_velocity.y = gyro->getAngleY() * 180 / M_PI;
-    // imu_msgs.angular_velocity.z = gyro->getAngleZ() * 180 / M_PI;
+    // imu_msgs.linear_acceleration.x = gravity[0];
+    // imu_msgs.linear_acceleration.y = gravity[1];
+    // imu_msgs.linear_acceleration.z = gravity[2];
 
-    imu_msgs.linear_acceleration.x = gyro->getAccX();
-    imu_msgs.linear_acceleration.y = gyro->getAccY();
-    imu_msgs.linear_acceleration.z = gyro->getAccZ();
-
-    // imu_msgs.linear_acceleration.x = gyro->getAccX() - gravity.x * 9.8;
-    // imu_msgs.linear_acceleration.y = gyro->getAccY() - gravity.y * 9.8;
-    // imu_msgs.linear_acceleration.z = gyro->getAccZ() - gravity.z * 9.8;
-
-    // imu_msgs.linear_acceleration.x = gravity.x;
-    // imu_msgs.linear_acceleration.y = gravity.y;
-    // imu_msgs.linear_acceleration.z = gravity.z;
-      
-    // DEBUG_PRINT(F("Inside IMU loop without publishing:"));
-    // DEBUG_PRINTLN(millis()-timer);
+    imu_msgs.linear_acceleration.x = acc_x;
+    imu_msgs.linear_acceleration.y = acc_y;
+    imu_msgs.linear_acceleration.z = acc_z;
 
     imu_pub->publish(&imu_msgs);
-    #endif
-
-    // DEBUG_PRINT(F("Loop time cycle :"));
-    // DEBUG_PRINTLN(millis()-timer);
-
 }

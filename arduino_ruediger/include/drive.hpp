@@ -9,7 +9,7 @@
 #include "MePort.h"
 #include "motor.hpp"
 
-#define TIMER_DRIVER 40
+#define TIMER_DRIVER 100
 
 void motor_2_cmd(const std_msgs::Int32 &msg);
 void motor_3_cmd(const std_msgs::Int32 &msg);
@@ -28,10 +28,10 @@ class Drive {
   public:
     Drive(void);
 
-    Motor *motor_1;
-    Motor *motor_2;
-    Motor *motor_3;
-    Motor *motor_4;
+    Motor motor_1;
+    Motor motor_2;
+    Motor motor_3;
+    Motor motor_4;
 
     unsigned long read_timer(void);
     void set_speed(const geometry_msgs::Twist& my_speed);

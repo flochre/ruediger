@@ -12,12 +12,13 @@
 #include "uss.hpp"
 
 ros::NodeHandle nh;
-String logInfoStr;
-String logWarnStr;
+// String logInfoStr;
+// String logWarnStr;
 
-Drive *my_driver;
-Imu *my_imu;
-Uss *my_uss;
+// Drive *my_driver;
+Drive my_driver;
+Imu my_imu;
+Uss my_uss;
 
 //Defining an LED pin to show the status of IMU data read
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
@@ -26,20 +27,20 @@ unsigned long timer_led = 0;
 bool blinkState = false;
 
 void isr_process_encoder1(void){
-  my_driver->motor_1->isr_process_encoder();
+  my_driver.motor_1.isr_process_encoder();
 }
 void isr_process_encoder2(void){
-  my_driver->motor_2->isr_process_encoder();
+  my_driver.motor_2.isr_process_encoder();
 }
 void isr_process_encoder3(void){
-  my_driver->motor_3->isr_process_encoder();
+  my_driver.motor_3.isr_process_encoder();
 }
 void isr_process_encoder4(void){
-  my_driver->motor_4->isr_process_encoder();
+  my_driver.motor_4.isr_process_encoder();
 }
 
 void cmd_vel(const geometry_msgs::Twist &my_speed){
-  my_driver->set_speed(my_speed);
+  my_driver.set_speed(my_speed);
 }
 
 void setup() {
@@ -48,19 +49,19 @@ void setup() {
 
   nh.initNode();
 
-  my_driver = new Drive();
-  my_driver->setup(&nh, "cmd_vel", &cmd_vel);
+  // my_driver = new Drive();
+  my_driver.setup(&nh, "cmd_vel", &cmd_vel);
 
-  attachInterrupt(my_driver->motor_1->my_motor.getIntNum(), isr_process_encoder1, RISING);
-  attachInterrupt(my_driver->motor_2->my_motor.getIntNum(), isr_process_encoder2, RISING);
-  attachInterrupt(my_driver->motor_3->my_motor.getIntNum(), isr_process_encoder3, RISING);
-  attachInterrupt(my_driver->motor_4->my_motor.getIntNum(), isr_process_encoder4, RISING);
+  attachInterrupt(my_driver.motor_1.my_motor.getIntNum(), isr_process_encoder1, RISING);
+  attachInterrupt(my_driver.motor_2.my_motor.getIntNum(), isr_process_encoder2, RISING);
+  attachInterrupt(my_driver.motor_3.my_motor.getIntNum(), isr_process_encoder3, RISING);
+  attachInterrupt(my_driver.motor_4.my_motor.getIntNum(), isr_process_encoder4, RISING);
 
-  my_imu = new Imu;
-  my_imu->setup(&nh, "imu_data");
+  // my_imu = new Imu;
+  my_imu.setup(&nh, "imu_data");
 
-  my_uss = new Uss(PORT_7);
-  my_uss->setup(&nh, "uss_data");
+  // my_uss = new Uss(PORT_7);
+  my_uss.setup(&nh, "uss_data");
   
   // configure LED for output
   pinMode(LED_PIN, OUTPUT);
@@ -69,19 +70,19 @@ void setup() {
 
 void loop() {
   // Manage Timers to read the sensors data  
-  if (millis() >= my_imu->read_timer() + TIMER_IMU){
+  if (millis() >= my_imu.read_timer() + TIMER_IMU){
     // logInfoStr = "IMU loop : " + String(millis() - my_imu->read_timer());
-    my_imu->loop();
+    my_imu.loop();
   }
   
-  if (millis() >= my_uss->read_timer() + TIMER_USS){
+  if (millis() >= my_uss.read_timer() + TIMER_USS){
     // logInfoStr = "USS loop : " + String(millis() - my_uss->read_timer());
-    my_uss->loop();
+    my_uss.loop();
   }
 
-  if (millis() >= my_driver->read_timer() + TIMER_DRIVER){
-    // logInfoStr = "Driver loop : " + String(millis() - my_driver->read_timer());
-    my_driver->loop();
+  if (millis() >= my_driver.read_timer() + TIMER_DRIVER){
+    // logInfoStr = "Driver loop : " + String(millis() - my_driver.read_timer());
+    my_driver.loop();
   }
 
 
