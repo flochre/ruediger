@@ -300,13 +300,13 @@ void Imu::loop(void) {
     // imu_msgs.orientation_covariance[7] = covariance;
     // imu_msgs.orientation_covariance[8] = covariance;
 
-    imu_msgs.angular_velocity.x = angle_roll_output * 180 / M_PI;
-    imu_msgs.angular_velocity.y = angle_pitch_output * 180 / M_PI;
-    imu_msgs.angular_velocity.z = angle_yaw_output * 180 / M_PI;
+    // imu_msgs.angular_velocity.x = angle_roll_output * 180 / M_PI;
+    // imu_msgs.angular_velocity.y = angle_pitch_output * 180 / M_PI;
+    // imu_msgs.angular_velocity.z = angle_yaw_output * 180 / M_PI;
 
-    // imu_msgs.angular_velocity.x = gyro_x;
-    // imu_msgs.angular_velocity.y = gyro_y;
-    // imu_msgs.angular_velocity.z = gyro_z;
+    imu_msgs.angular_velocity.x = gyro_x;
+    imu_msgs.angular_velocity.y = gyro_y;
+    imu_msgs.angular_velocity.z = gyro_z;
 
     // imu_msgs.linear_acceleration.x = gravity[0];
     // imu_msgs.linear_acceleration.y = gravity[1];

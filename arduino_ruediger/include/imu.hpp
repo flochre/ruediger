@@ -3,12 +3,7 @@
 
 #include "Wire.h"
 #include "I2Cdev.h"
-// #include "helper_3dmath.h"
-
-// #include "MPU6050.h"
 #include "MPU6050_Reduced.h"
-// #include "MPU6050_6Axis_MotionApps20.h"
-// #include "MeGyro.h"
 
 #include <ros.h>
 
@@ -17,7 +12,7 @@
 #include <geometry_msgs/Quaternion.h>
 #include <tf/transform_broadcaster.h>
 
-#define TIMER_IMU 50
+#define TIMER_IMU 52      // The MPU is geting data every 4ms a multiple of 4 is better
 #define I2C_BUFFER_SIZE 14
 
 class Imu {
