@@ -2,6 +2,7 @@
     <group ns="serial">
         <node name="rosserial" pkg="rosserial_python" type="serial_node.py">
 		    <param name="port" value="/dev/ttyAMA0"/>
+		    <param name="baud" value="333333.33"/>
 	    </node>
     </group>
 </launch>

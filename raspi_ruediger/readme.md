@@ -1,6 +1,20 @@
 cd {repo_rudiger}/raspi_ruediger/
 catkin_make
 
+if you want to use a dcdc-nuc
+```
+sudo apt-get install libusb-dev
+```
+```
+cd /etc/udev/rules.d
+sudo nano 40-ftdi.rules
+```
+```
+#FTDI permissions granted to users group
+SUBSYSTEM=="usb", ATTR{idProduct}=="d007", ATTR{idVendor}=="04d8", MODE="0660", GROUP="users"
+```
+
+
 good infos : https://github.com/UbiquityRobotics/ubiquity_launches
 
 3. The very first thing we will do is change both the host name
@@ -142,3 +156,22 @@ good infos : https://github.com/UbiquityRobotics/ubiquity_launches
         exit
 
 That covers the initial setup for now.
+
+======== CMAKE update
+DO NOT PERFORM cmake purge on ROS System
+https://anglehit.com/how-to-install-the-latest-version-of-cmake-via-command-line/
+
+version=3.18
+build=4
+mkdir ~/temp
+cd ~/temp
+wget https://cmake.org/files/v$version/cmake-$version.$build.tar.gz
+tar -xzvf cmake-$version.$build.tar.gz
+cd cmake-$version.$build/
+
+./bootstrap
+make -j4
+sudo make install
+
+cmake --version
+
