@@ -9,7 +9,7 @@
 #include "MePort.h"
 #include "motor.hpp"
 
-#define TIMER_DRIVER 100
+#define TIMER_DRIVER 80
 
 void motor_2_cmd(const std_msgs::Int32 &msg);
 void motor_3_cmd(const std_msgs::Int32 &msg);

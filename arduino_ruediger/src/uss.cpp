@@ -10,6 +10,18 @@ Uss::Uss(uint8_t port){
     me_uss = new MeUltrasonicSensor(port);
 }
 
+float Uss::distance_meters(float max_m){
+    // get time in microseconds
+    long duration = me_uss->measure();
+    distance = duration * 0.000001 / 2.0 * SOUND_SPEED;
+
+    if ((distance >= max_m) || (distance == 0)){
+        return max_m;
+    } else {
+        return distance;
+    }
+}
+
 unsigned long Uss::read_timer(void){
     return timer;
 }
@@ -30,7 +42,8 @@ void Uss::setup(ros::NodeHandle *nh, char topic_name[]){
 
 void Uss::loop(void){
     timer = millis();
-    uss_msg.range = me_uss->distanceCm() * 0.01; // to get the range in meters
+    // uss_msg.range = me_uss->distanceCm() * 0.01; // to get the range in meters
+    uss_msg.range = distance_meters(); // to get the range in meters
     uss_msg.header.stamp = nh_->now();
     uss_pub->publish(&uss_msg);
 }

@@ -45,7 +45,8 @@ class Imu {
     uint8_t i2cData[I2C_BUFFER_SIZE];
     uint8_t device_address;
 
-    String frame_id = "/base_link";
+    // String frame_id = "/base_link";
+    // char frame_id[] = "/base_link";
 
     void begin(uint8_t accel_config = MPU6050_ACCEL_FS_2, uint8_t gyro_config = MPU6050_GYRO_FS_500);
     void calibrate(uint16_t calibration_iterations = 200);
@@ -68,7 +69,7 @@ class Imu {
     uint8_t get_quaternion(geometry_msgs::Quaternion *q, double yaw, double pitch, double roll);
     uint8_t get_gravity(float *v, geometry_msgs::Quaternion *q);
 
-    void setup(ros::NodeHandle *nh, char topic_name[] = "imu_data");
+    void setup(ros::NodeHandle *nh, char topic_name[] = "imu_data", char frame_id[] = "/base_link");
     void loop(void);
 };
 

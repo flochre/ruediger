@@ -1,20 +1,8 @@
-# How to start the robot
+Choose you baudrate wisely :)
+http://ruemohr.org/~ircjunk/avr/baudcalc/avrbaudcalc-1.0.8.php
 
-## Source the project or add it to your bashrc
-On the Raspi
-```
-source ~/rosserial_ws/devel/setup.bash
-echo “source ~/rosserial_ws/devel/setup.bash” >>~/.bashrc
-source ~/.bashrc
-```
-```
-rosrun rosserial_python serial_node.py /dev/ttyAMA0
-rostopic list
-```
-```
-rostopic echo /imu_data
-rostopic echo /tf
-```
+MegaPi is using a ATMEGA2560-16AU -> 16MHz 
+38400 or 76800 Bauds is a good idea to start with :) - Later you can try to find out why I used something else :p
 
 ## PINOUT
 | PORT  |  Pin Nb  |  PWM  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  Pin Nb  |  DIR1 |  DIR2  |
@@ -59,6 +47,7 @@ motor turning but to fast ..
 ```
 
 ## Timers
+Needed to change the PWM frequency makes the Motor less noisy :p
 MegaPi -> ATMEGA2560-16AU
 
 https://forum.arduino.cc/index.php?topic=153645.0 - info pwm et timer/pins
@@ -176,83 +165,3 @@ TCCR1B = _BV(CS11) | _BV(WGM12);
 TCCR2A = _BV(WGM21) | _BV(WGM20);
 TCCR2B = _BV(CS21);
 ```
-
-
-# IMU Offset
-## ORIGNILA VALUES RUEDIGER
-Reading acc offset values...
-X ACC offset = -42
-Y ACC offset = 27
-Z ACC offset = 70
-Reading gyro offset values...
-X gyro offset = 62
-Y gyro offset = 0
-Z gyro offset = 2
-
-
-//              X Accel  Y Accel  Z Accel   X Gyro   Y Gyro   Z Gyro
-#define OFFSETS  -1315,     -35,     733,     263,       7,       7
-
-
-X acc user offset = 906
-Y acc user offset = -199
-Z acc user offset = 16970
-X gyro user offset = -867
-Y gyro user offset = -33
-Z gyro user offset = -44
-
-
-//              X Accel  Y Accel  Z Accel   X Gyro   Y Gyro   Z Gyro
-#define OFFSETS  -1322,      27,     838,       0,       0,       0
-Found MPU at: 0x68
-WhoAmI= 0x34
-
-Reset Offsets
-set Offsets
->.**.*****.********.****.*.***.**.********..>..........Found MPU6050 or MPU9150
--1315
--35
-733
-263
-7
-7
-
-//              X Accel  Y Accel  Z Accel   X Gyro   Y Gyro   Z Gyro
-#define OFFSETS  -1315,     -35,     733,     263,       7,       7
-
-
-Offset megyro :)
--435.00
--17.00
--22.00
-
-X acc user offset = 903
-Y acc user offset = -199
-Z acc user offset = 16995
-X gyro user offset = -869
-Y gyro user offset = -34
-Z gyro user offset = -44
-
-
-902.00
--199.00
-17040.00
--435.00
--16.00
--22.00
-
-Reading acc offset values...
-X ACC offset = -42
-Y ACC offset = 27
-Z ACC offset = 70
-Reading gyro offset values...
-X gyro offset = 62
-Y gyro offset = 0
-Z gyro offset = 2
-
-X acc user offset = 11299
-Y acc user offset = -142
-Z acc user offset = 9594
-X gyro user offset = -373
-Y gyro user offset = 47
-Z gyro user offset = 41

@@ -6,7 +6,8 @@
 #include <ros.h>
 #include <sensor_msgs/Range.h>
 
-#define TIMER_USS 1000
+#define TIMER_USS 100
+#define SOUND_SPEED 343 // meter per seconds
 
 class Uss {
 
@@ -15,6 +16,9 @@ class Uss {
     sensor_msgs::Range uss_msg;
     MeUltrasonicSensor *me_uss;
     unsigned long timer;
+
+    float distance;
+    float distance_meters(float max_m = 4.0);
 
   public:
     Uss(void);

@@ -12,16 +12,13 @@
 #include "uss.hpp"
 
 ros::NodeHandle nh;
-// String logInfoStr;
-// String logWarnStr;
 
-// Drive *my_driver;
 Drive my_driver;
 Imu my_imu;
 Uss my_uss;
 
 //Defining an LED pin to show the status of IMU data read
-#define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
+#define LED_PIN 13
 #define TIMER_LED 250
 unsigned long timer_led = 0;
 bool blinkState = false;
@@ -57,10 +54,8 @@ void setup() {
   attachInterrupt(my_driver.motor_3.my_motor.getIntNum(), isr_process_encoder3, RISING);
   attachInterrupt(my_driver.motor_4.my_motor.getIntNum(), isr_process_encoder4, RISING);
 
-  // my_imu = new Imu;
   my_imu.setup(&nh, "imu_data");
 
-  // my_uss = new Uss(PORT_7);
   my_uss.setup(&nh, "uss_data");
   
   // configure LED for output

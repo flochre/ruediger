@@ -9,47 +9,37 @@ The aim is to control the Robot over ROS and to get all the information about th
 
 That is why there will be 2 folders
 > arduino_ruediger
-
 > raspi_ruediger
 
 ## Arduino_Ruediger
 
-Choose you baudrate wisely :)
-http://ruemohr.org/~ircjunk/avr/baudcalc/avrbaudcalc-1.0.8.php
+The Arduino part is there to gather all the sensors information and to move the Robot
 
-MegaPi is using a ATMEGA2560-16AU -> 16MHz 
-38400 or 76800 Bauds is a good idea to use :)
+What it can so far:
+
+* Get data from the Makeblock Ultrason
+* Get data from the Makeblock Inertial Motion Unit
+* Get data from the Motor Encoders
+* Move the Makeblock Motors
+
+* Communicate over ROS Serial to a ROS Master
+
+
+I used Platform IO combined to Visual Studio Code for ease of development please feel free to use whatever suits you most
 
 ## Raspi_Ruediger
-```
-ssh ubuntu@ubiquityrobot
-ssh ubuntu@ruediger
 
-rosrun rosserial_python serial_node.py /dev/ttyAMA0
-roslaunch run_ruediger first_launch.launch
-
-rostopic pub /serial/cmd_vel geometry_msgs/Twist  '{linear:  {x: 0.1, y: 0.0, z: 0.0}, angular: {x: 0.0,y: 0.0,z: 0.0}}'
-
-```
-
-encoder_2 : 2 meters - -3929 ticks == 192 cm -3838
-encoder_3 : 2 meters - 4086 ticks == 192 cm 3992
+The Raspberry Pi is setted up with ROS and comminicates with Arduino over serial
 
 
-https://answers.ros.org/question/10904/best-practices-for-launching-ros-on-startup/
+## Best Practices
+### Use ubiquity
+For ease of use, I decided to use the image from [Ubiquity]!https://downloads.ubiquityrobotics.com/pi.html
 
-## Install ROS on mac
-http://wiki.ros.org/kinetic/Installation/OSX/Homebrew/Source 
+I can only highly recommand reading and following those tips : https://github.com/UbiquityRobotics/ubiquity_launches 
 
-brew update
-brew install cmake
+### Use VS Code / VS Code Insider
+Develop over SSH with Visual Studio Code
 
-brew tap ros/deps # if not working do https://github.com/ros/homebrew-deps/issues/36#issuecomment-505944324
-cd /usr/local/Homebrew/Library/Taps
-git clone https://github.com/nagakiran/homebrew-deps.git
-mkdir ros
-mv nagakiran/homebrew-deps ros/
-brew tap ros/deps
-brew tap osrf/simulation   # Gazebo, sdformat, and ogre
-brew tap homebrew/core # VTK5
-brew tap homebrew/science # if not working do brew tap brewsci/science instead
+https://www.hanselman.com/blog/VisualStudioCodeRemoteDevelopmentOverSSHToARaspberryPiIsButter.aspx
+https://code.visualstudio.com/docs/remote/troubleshooting#_configuring-key-based-authentication
