@@ -11,6 +11,25 @@ That is why there will be 2 folders
 * arduino_ruediger
 * raspi_ruediger
 
+To build the Robot, I used the instructions of the Ultimate Robot 2.0 Detect Robot
+You can watch them there : https://www.youtube.com/watch?v=8k3qfqbZZQA&ab_channel=Makeblock 
+
+For the cabling I used the following connections:
+Slot  | Motor
+------------ | -------------
+SLOT_1 | No Motor
+SLOT_2 | 25 mm DC Encoder Motor 9V/185RPM
+SLOT_3 | 25 mm DC Encoder Motor 9V/185RPM
+SLOT_4 | No Motor
+
+Port  | Sensor
+------------ | -------------
+PORT_5 | No Sensor
+SLOT_6 | IMU
+SLOT_7 | Ultrasonic Sensor
+SLOT_8 | No Sensor
+
+
 ## Arduino_Ruediger
 
 The Arduino part is there to gather all the sensors information and to move the Robot

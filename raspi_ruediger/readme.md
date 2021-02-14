@@ -4,6 +4,7 @@ On the Raspi configured with ROS
 
 ```
 git clone git@github.com:flochre/ruediger.git
+sudo apt install ros-kinetic-rosserial-python
 ```
 
 ```
