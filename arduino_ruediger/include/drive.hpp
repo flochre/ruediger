@@ -22,6 +22,8 @@ class Drive {
   // Creating handlers of Node, IMU message, quaternion and ROS publisher.
   ros::NodeHandle *nh_;
   ros::Subscriber<geometry_msgs::Twist> *cmd_vel;
+  ros::Subscriber<std_msgs::Int32> *cmd_mot1;
+  ros::Subscriber<std_msgs::Int32> *cmd_mot4;
 
   void cmd_vel_cb(const geometry_msgs::Twist& my_speed);
 
@@ -35,7 +37,10 @@ class Drive {
 
     unsigned long read_timer(void);
     void set_speed(const geometry_msgs::Twist& my_speed);
+    // Setup the robot to drive on motor 2 and 3
     void setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geometry_msgs::Twist>::CallbackT cb_cmd_vel);
+    // Setup the robot to drive on motor 2 and 3 and allow the motor 1 and 4 to be commanded over ROS by PWM
+    void setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geometry_msgs::Twist>::CallbackT cb_cmd_vel, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot1, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot4);
     void loop(void);
 };
 

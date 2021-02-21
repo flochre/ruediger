@@ -69,6 +69,29 @@ void Motor::setup(ros::NodeHandle *nh, char publisher_name[]){
     );
 }
 
+void Motor::setup(ros::NodeHandle *nh, char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb){
+    nh_ = nh;
+
+    motor_pub = NULL;
+
+    motor_sub = new ros::Subscriber<std_msgs::Int32>(subscriber_name, cb);
+    nh_->subscribe(*motor_sub);
+
+    // Configure motor
+    configure_motor(
+      8, 
+      1, 
+      0.6, 0, 1.2, 
+      0.06, 0, 0
+    );
+    set_default_values(
+      0, 
+      0, 10, 
+      0, 
+      DIRECT_MODE
+    );
+}
+
 void Motor::setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb){
     setup(nh, publisher_name);
 
@@ -79,6 +102,8 @@ void Motor::setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_na
 void Motor::loop(void){
     my_motor.loop();
 
-    encoder_info.data = my_motor.getPulsePos();
-    motor_pub->publish(&encoder_info);
+    if (NULL != motor_pub) {
+        encoder_info.data = my_motor.getPulsePos();
+        motor_pub->publish(&encoder_info);
+    }
 }

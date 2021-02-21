@@ -27,7 +27,11 @@ class Motor {
     Motor(void);
     Motor(uint8_t slot);
     void reset(uint8_t slot);
+    // Setup only publisher
     void setup(ros::NodeHandle *nh, char publisher_name[]);
+    // Setup only subscriber
+    void setup(ros::NodeHandle *nh, char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb);
+    // Setup both
     void setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb);
     void loop(void);
 };

@@ -85,8 +85,42 @@ void Drive::setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geome
     TCCR4B = _BV(CS40);
     TCCR4C = 0;
 
-    // motor_1 = new Motor(SLOT1);
-    motor_1.setup(nh, "encoder_1");
+    motor_2.setup(nh, "encoder_2");
+    motor_2.configure_motor(
+        8, 
+        46.67, 
+        1.8, 0, 1.2, 
+        0.18, 0.1, 0
+    );
+    motor_2.set_default_values(
+        0, 
+        0, 10, 
+        0, 
+        DIRECT_MODE
+    );
+
+    motor_3.setup(nh, "encoder_3");
+    motor_3.configure_motor(
+        8, 
+        46.67, 
+        1.8, 0, 1.2, 
+        0.18, 0.1, 0
+    );
+    motor_3.set_default_values(
+        0, 
+        0, 10, 
+        0, 
+        DIRECT_MODE
+    );
+
+    cmd_vel = new ros::Subscriber<geometry_msgs::Twist>(sub_cmd_vel, cb_cmd_vel);
+    nh_->subscribe(*cmd_vel);
+}
+
+void Drive::setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geometry_msgs::Twist>::CallbackT cb_cmd_vel, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot1, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot4){
+    setup(nh, sub_cmd_vel, cb_cmd_vel);
+
+    motor_1.setup(nh, "encoder_1", "cmd_mot1", cb_cmd_mot1);
     motor_1.configure_motor(
         8, 
         75, 
@@ -100,41 +134,7 @@ void Drive::setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geome
         DIRECT_MODE
     );
 
-    // motor_2 = new Motor(SLOT2);
-    // motor_2.setup(nh, "encoder_2", "motor_2", &motor_2_cmd);
-    motor_2.setup(nh, "encoder_2");
-    motor_2.configure_motor(
-        8, 
-        46.67, 
-        1.8, 0, 1.2, 
-        // 0.18, 0, 0
-        0.18, 0.1, 0
-    );
-    motor_2.set_default_values(
-        0, 
-        0, 10, 
-        0, 
-        DIRECT_MODE
-    );
-
-    // motor_3 = new Motor(SLOT3);
-    // motor_3.setup(nh, "encoder_3", "motor_3", &motor_3_cmd);
-    motor_3.setup(nh, "encoder_3");
-    motor_3.configure_motor(
-        8, 
-        46.67, 
-        1.8, 0, 1.2, 
-        // 0.18, 0, 0
-        0.18, 0.1, 0
-    );
-    motor_3.set_default_values(
-        0, 
-        0, 10, 
-        0, 
-        DIRECT_MODE
-    );
-    // motor_4 = new Motor(SLOT4);
-    motor_4.setup(nh, "encoder_4");
+    motor_4.setup(nh, "cmd_mot4", cb_cmd_mot4);
     motor_4.configure_motor(
       8, 
       1, 
@@ -147,9 +147,6 @@ void Drive::setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geome
       0, 
       DIRECT_MODE
     );
-
-    cmd_vel = new ros::Subscriber<geometry_msgs::Twist>(sub_cmd_vel, cb_cmd_vel);
-    nh_->subscribe(*cmd_vel);
 }
 
 void Drive::loop() {

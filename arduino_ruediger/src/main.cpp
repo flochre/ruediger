@@ -40,14 +40,22 @@ void cmd_vel(const geometry_msgs::Twist &my_speed){
   my_driver.set_speed(my_speed);
 }
 
+void cmd_mot1(const std_msgs::Int32 &my_speed){
+  my_driver.motor_1.set_speed(my_speed.data);
+}
+
+void cmd_mot4(const std_msgs::Int32 &my_speed){
+  my_driver.motor_4.set_speed(my_speed.data);
+}
+
 void setup() {
   // put your setup code here, to run once:
   delay(5);
 
   nh.initNode();
 
-  // my_driver = new Drive();
-  my_driver.setup(&nh, "cmd_vel", &cmd_vel);
+  // my_driver.setup(&nh, "cmd_vel", &cmd_vel);
+  my_driver.setup(&nh, "cmd_vel", &cmd_vel, &cmd_mot1, &cmd_mot4);
 
   attachInterrupt(my_driver.motor_1.my_motor.getIntNum(), isr_process_encoder1, RISING);
   attachInterrupt(my_driver.motor_2.my_motor.getIntNum(), isr_process_encoder2, RISING);
