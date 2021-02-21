@@ -17,10 +17,12 @@ You can watch them there : https://www.youtube.com/watch?v=8k3qfqbZZQA&ab_channe
 For the cabling I used the following connections:
 Slot  | Motor
 ------------ | -------------
-SLOT_1 | No Motor
-SLOT_2 | 25 mm DC Encoder Motor 9V/185RPM
-SLOT_3 | 25 mm DC Encoder Motor 9V/185RPM
-SLOT_4 | No Motor
+SLOT_1 | 25 mm DC Encoder Motor 9V/ 86RPM (Motor A)
+SLOT_2 | 25 mm DC Encoder Motor 9V/185RPM (Motor B)
+SLOT_3 | 25 mm DC Encoder Motor 9V/185RPM (Motor C)
+SLOT_4 | Makeblock Gripper 
+
+![Wiring](img/wiring.jpg)
 
 Port  | Sensor
 ------------ | -------------
@@ -62,3 +64,27 @@ Develop over SSH with Visual Studio Code
 
 https://www.hanselman.com/blog/VisualStudioCodeRemoteDevelopmentOverSSHToARaspberryPiIsButter.aspx
 https://code.visualstudio.com/docs/remote/troubleshooting#_configuring-key-based-authentication
+
+### Connect with ROS on a 3rd Computer
+Use a Linux Computer with ROS installed - I use Ubuntu 16.04
+
+Set up Ubuntu to connect to the Wifi of the the Robot
+Export ROS_MASTER_URI to connect to the ROS of the Robot - you can also add it to your bashrc
+```
+export ROS_MASTER_URI=http://ruediger.local:11311
+export ROS_IP=<your_ip_address_on_wifi> # export ROS_IP=10.42.0.130
+```
+
+### Use Teleop to command the Robot
+```
+git clone git@github.com:ros-teleop/teleop_twist_keyboard.git
+cd teleop_twist_keyboard
+. devel/setup.bash
+rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/serial/cmd_vel _key_timeout:=0.6
+```
+
+### Command the Motor_1 and Motor_4
+```
+rostopic pub /serial/cmd_mot1 std_msgs/Int32 int 'data: 40'
+rostopic pub /serial/cmd_mot4 std_msgs/Int32 int 'data: -40'
+```
