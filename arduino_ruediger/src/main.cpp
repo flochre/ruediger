@@ -7,12 +7,14 @@
 // These are the ROS headers for getting ROS Client API's.
 #include <ros.h>
 
+#include "camera.hpp"
 #include "drive.hpp"
 #include "imu.hpp"
 #include "uss.hpp"
 
 ros::NodeHandle nh;
 
+Camera my_camera;
 Drive my_driver;
 Imu my_imu;
 Uss my_uss;
@@ -54,6 +56,8 @@ void setup() {
 
   nh.initNode();
 
+  my_camera.setup(&nh, "pixy_cam");
+
   // my_driver.setup(&nh, "cmd_vel", &cmd_vel);
   my_driver.setup(&nh, "cmd_vel", &cmd_vel, &cmd_mot1, &cmd_mot4);
 
@@ -73,6 +77,11 @@ void setup() {
 
 void loop() {
   // Manage Timers to read the sensors data  
+  if (millis() >= my_camera.read_timer() + TIMER_CAMERA){
+    // logInfoStr = "IMU loop : " + String(millis() - my_imu->read_timer());
+    my_camera.loop();
+  }
+
   if (millis() >= my_imu.read_timer() + TIMER_IMU){
     // logInfoStr = "IMU loop : " + String(millis() - my_imu->read_timer());
     my_imu.loop();

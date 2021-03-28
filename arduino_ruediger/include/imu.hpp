@@ -16,8 +16,7 @@
 #define I2C_BUFFER_SIZE 14
 
 class Imu {
-//    public: 
-
+  //  private: 
     unsigned long timer;
 
     // Creating handlers of Node, IMU message, quaternion and ROS publisher.
