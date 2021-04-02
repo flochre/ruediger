@@ -15,8 +15,7 @@ Uss::~Uss(){}
 float Uss::distance_meters(float max_m){
     // get time in microseconds
     long duration_us = me_uss->measure();
-    // distance = duration_us * 0.000001 / 2.0 * SOUND_SPEED;
-    distance = duration_us / SEC_2_MICROSEC / 2.0 * SOUND_SPEED;
+    distance = duration_us * MICROSEC_2_SEC / 2.0 * SOUND_SPEED;
 
     if ((distance >= max_m) || (distance == 0)){
         return max_m;

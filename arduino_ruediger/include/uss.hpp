@@ -7,7 +7,8 @@
 #include <sensor_msgs/Range.h>
 
 #define TIMER_USS 100
-#define SEC_2_MICROSEC 1000000
+#define SEC_2_MICROSEC 1e6
+#define MICROSEC_2_SEC 1e-6
 #define SOUND_SPEED 343 // meter per seconds
 
 class Uss {
