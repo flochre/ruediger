@@ -1,0 +1,8 @@
+digraph G {
+"world" -> "base_link"[label="Broadcaster: /rviz/to_imu\nAverage rate: 19.364 Hz\nMost recent transform: 1618065268.761 ( -0.003 sec old)\nBuffer length: 4.906 sec\n"];
+"base_link" -> "uss_data"[label="Broadcaster: /rviz/to_uss_front\nAverage rate: 10.186 Hz\nMost recent transform: 1618065268.819 ( -0.062 sec old)\nBuffer length: 4.909 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1618065268.757"[ shape=plaintext ] ;
+ }->"world";
+}

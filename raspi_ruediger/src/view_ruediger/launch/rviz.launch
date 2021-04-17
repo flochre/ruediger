@@ -1,0 +1,10 @@
+<launch>
+    <group ns="rviz">
+        <param name="robot_description" textfile="$(find view_ruediger)params/ruediger.urdf" />
+
+        <!-- <node pkg="tf" type="static_transform_publisher" name="to_imu" args="-0.063 0.015 0.036 0 0 0 base_link imu_data 100"/>
+        <node pkg="tf" type="static_transform_publisher" name="to_uss_front" args="0.139 0.035 0.09 0 0 0 base_link uss_data 100"/> -->
+
+        <node name="rviz" pkg="rviz" type="rviz" args="-f base_link" required="true" />
+    </group>
+</launch>
