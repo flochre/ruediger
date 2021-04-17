@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  tf2
+  tf2_ros
 )
 
 ## System dependencies are found with CMake's conventions
@@ -135,6 +137,9 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/run_ruediger_node.cpp)
 
+add_executable(imu_tf2_listener src/imu_tf2_listener.cpp)
+add_executable(base_link_tf2_broadcaster src/base_link_tf2_broadcaster.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -149,6 +154,14 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+target_link_libraries(imu_tf2_listener
+ ${catkin_LIBRARIES}
+)
+
+target_link_libraries(base_link_tf2_broadcaster
+ ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
