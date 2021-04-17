@@ -13,6 +13,7 @@
 #include <tf/transform_broadcaster.h>
 
 #define TIMER_IMU 52      // The MPU is geting data every 4ms a multiple of 4 is better
+#define DELETE_GRAVITY 0x0  // Use 1 to substract gravity use 
 #define I2C_BUFFER_SIZE 14
 
 class Imu {
@@ -68,7 +69,8 @@ class Imu {
     uint8_t get_quaternion(geometry_msgs::Quaternion *q, double yaw, double pitch, double roll);
     uint8_t get_gravity(float *v, geometry_msgs::Quaternion *q);
 
-    void setup(ros::NodeHandle *nh, char topic_name[] = "imu_data", char frame_id[] = "/base_link");
+    // void setup(ros::NodeHandle *nh, char topic_name[] = "imu_data", char frame_id[] = "base_link");
+    void setup(ros::NodeHandle *nh, char topic_name[] = "imu_data");
     void loop(void);
 };
 

@@ -6,7 +6,7 @@
 #include <ros.h>
 #include <sensor_msgs/Range.h>
 
-#define TIMER_USS 100
+#define TIMER_USS 250
 #define SEC_2_MICROSEC 1e6
 #define MICROSEC_2_SEC 1e-6
 #define SOUND_SPEED 343 // meter per seconds

@@ -194,9 +194,17 @@ void Imu::update(float tau) {
     
     // Set acceleration values
     if(set_gyro_angles){
+      if (0x1 == DELETE_GRAVITY) {
         acc_x -= acc_x_cal + gravity_calib[0] ;
         acc_y -= acc_y_cal + gravity_calib[1] ;
         acc_z -= acc_z_cal + gravity_calib[2] ; 
+      }
+
+      // if (0x0 == DELETE_GRAVITY) {
+      //   acc_x -= acc_x_cal;
+      //   acc_y -= acc_y_cal;
+      //   acc_z -= acc_z_cal; 
+      // }
     }
 
     acc_x /= aSensitivity_si;
@@ -264,16 +272,17 @@ uint8_t Imu::get_gravity(float *v, geometry_msgs::Quaternion *q) {
     return 0;
 }
 
-// void Imu::setup(ros::NodeHandle *nh, char topic_name[]){
-void Imu::setup(ros::NodeHandle *nh, char topic_name[], char frame_id[]){
+// void Imu::setup(ros::NodeHandle *nh, char topic_name[], char frame_id[]){
+void Imu::setup(ros::NodeHandle *nh, char topic_name[]){
     nh_ = nh;
   
     // Create publisher and advertise it!
     imu_pub = new ros::Publisher(topic_name, &imu_msgs);          
     nh_->advertise(*imu_pub);
 
-    // imu_msgs.header.frame_id = frame_id.c_str();
-    imu_msgs.header.frame_id = frame_id;
+    // imu_msgs.header.frame_id = frame_id;
+    imu_msgs.header.frame_id = topic_name;
+
 
     // Init Gyroscope
     begin(MPU6050_ACCEL_FS_2, MPU6050_GYRO_FS_500);

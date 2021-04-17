@@ -18,6 +18,8 @@ void Camera::setup(ros::NodeHandle *nh, char topic_name[]){
     cam_pub = new ros::Publisher(topic_name, &cam_msgs);          
     nh_->advertise(*cam_pub);
 
+    cam_msgs.header.frame_id = topic_name;
+    
     // Init Pixy
     pixy.init();
 }
