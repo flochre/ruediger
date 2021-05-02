@@ -120,6 +120,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  include/${PROJECT_NAME}
 )
 
 ## Declare a C++ library
@@ -139,6 +140,8 @@ include_directories(
 
 add_executable(imu_tf2_listener src/imu_tf2_listener.cpp)
 add_executable(base_link_tf2_broadcaster src/base_link_tf2_broadcaster.cpp)
+
+add_executable(tf2_manager src/tf2_manager.cpp src/${PROJECT_NAME}/tf2_broadcaster.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -160,6 +163,10 @@ target_link_libraries(imu_tf2_listener
 )
 
 target_link_libraries(base_link_tf2_broadcaster
+ ${catkin_LIBRARIES}
+)
+
+target_link_libraries(tf2_manager
  ${catkin_LIBRARIES}
 )
 
