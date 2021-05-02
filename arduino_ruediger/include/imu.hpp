@@ -16,8 +16,21 @@
 #define DELETE_GRAVITY 0x0  // Use 1 to substract gravity use 
 #define I2C_BUFFER_SIZE 14
 
-class Imu {
+#include "MeConfig.h"
+#ifdef ME_PORT_DEFINED
+#include "MePort.h"
+#endif // ME_PORT_DEFINED
+
+// class Imu 
+#ifndef ME_PORT_DEFINED
+class Imu
+#else // !ME_PORT_DEFINED
+class Imu : public MePort
+#endif // !ME_PORT_DEFINED
+{
   //  private: 
+    volatile uint8_t  _AD0;
+    volatile uint8_t  _INT;
     unsigned long timer;
 
     // Creating handlers of Node, IMU message, quaternion and ROS publisher.
