@@ -21,7 +21,7 @@ void Drive::cmd_vel_cb(const geometry_msgs::Twist& my_speed){
 Drive::Drive(void){
     timer = 0;
     motor_1.reset(SLOT1);
-    motor_2.reset(SLOT2);
+    motor_2.reset(SLOT2, 1);
     motor_3.reset(SLOT3);
     motor_4.reset(SLOT4);
 }
@@ -147,6 +147,54 @@ void Drive::setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geome
       0, 
       DIRECT_MODE
     );
+}
+
+void Drive::setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geometry_msgs::Twist>::CallbackT cb_cmd_vel, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot1, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot2, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot3, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot4){
+    nh_ = nh;
+
+    // Timer 1 : PWM = PWM, Phase Correct 8 bits -> PWM = 1 -> WGM(3:0) = 0b0001
+    // Timer 1 : Prescaler = 1, CS(2:0) = 0b001
+    // Timer 1 Changes SLOT1 (Motor1)
+    // TCCR1A  COM1A1  COM1A0  COM1B1  COM1B0  COM1C1  COM1C0  WGM11   WGM10
+    // TCCR1B  ICNC1   ICES1   -       WGM13   WGM12   CS12    CS11    CS10
+    TCCR1A = _BV(WGM10);
+    TCCR1B = _BV(CS10);
+    TCCR1C = 0;
+
+    // Timer 2 : PWM = PWM, Phase Correct -> PWM = 1 or 5 -> WGM(2:0) = 0b001
+    // Timer 2 : Prescaler = 1, CS(2:0) = 0b001
+    // Timer 2 Changes SLOT3 (Motor3)
+    // TCCR2A  COM2A1  COM2A0  COM2B1  COM2B0  -       -       WGM21   WGM20
+    // TCCR2B  FOC2A   FOC2B   -       -       WGM22   CS22    CS21    CS20
+    TCCR2A = _BV(WGM20);
+    TCCR2B = _BV(CS20);
+
+    // Timer 3 : PWM = PWM, Phase Correct 8 bits -> PWM = 1 -> WGM(3:0) = 0b0001
+    // Timer 3 : Prescaler = 1, CS(2:0) = 0b001
+    // Timer 3 Changes SLOT4 (Motor4)
+    // TCCR3A  COM3A1  COM3A0  COM3B1  COM3B0  COM3C1  COM3C0  WGM31   WGM30
+    // TCCR3B  ICNC3   ICES3   -       WGM33   WGM32   CS32    CS31    CS30
+    TCCR3A = _BV(WGM30);
+    TCCR3B = _BV(CS30);
+    TCCR3C = 0;
+
+    // Timer 4 : PWM = PWM, Phase Correct 8 bits -> PWM = 1 -> WGM(3:0) = 0b0001
+    // Timer 4 : Prescaler = 1, CS(2:0) = 0b001
+    // Timer 4 Changes SLOT2 (Motor2)
+    // TCCR4A  COM4A1  COM4A0  COM4B1  COM4B0  COM4C1  COM4C0  WGM41   WGM40
+    // TCCR4B  ICNC4   ICES4   -       WGM43   WGM42   CS42    CS41    CS40
+    TCCR4A = _BV(WGM40);
+    TCCR4B = _BV(CS40);
+    TCCR4C = 0;
+
+    cmd_vel = new ros::Subscriber<geometry_msgs::Twist>(sub_cmd_vel, cb_cmd_vel);
+    nh_->subscribe(*cmd_vel);
+
+    motor_1.setup(nh, "encoder_1", "cmd_mot1", cb_cmd_mot1);
+    motor_2.setup(nh, "encoder_2", "cmd_mot2", cb_cmd_mot2);
+    motor_3.setup(nh, "encoder_3", "cmd_mot3", cb_cmd_mot3);
+    motor_4.setup(nh, "cmd_mot4", cb_cmd_mot4);
+    
 }
 
 void Drive::loop() {

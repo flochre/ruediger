@@ -46,6 +46,14 @@ void cmd_mot1(const std_msgs::Int32 &my_speed){
   my_driver.motor_1.set_speed(my_speed.data);
 }
 
+void cmd_mot2(const std_msgs::Int32 &my_speed){
+  my_driver.motor_2.set_speed(my_speed.data);
+}
+
+void cmd_mot3(const std_msgs::Int32 &my_speed){
+  my_driver.motor_3.set_speed(my_speed.data);
+}
+
 void cmd_mot4(const std_msgs::Int32 &my_speed){
   my_driver.motor_4.set_speed(my_speed.data);
 }
@@ -56,10 +64,11 @@ void setup() {
 
   nh.initNode();
 
-  my_camera.setup(&nh, "pixy_cam");
+  // my_camera.setup(&nh, "pixy_cam");
 
   // my_driver.setup(&nh, "cmd_vel", &cmd_vel);
-  my_driver.setup(&nh, "cmd_vel", &cmd_vel, &cmd_mot1, &cmd_mot4);
+  // my_driver.setup(&nh, "cmd_vel", &cmd_vel, &cmd_mot1, &cmd_mot4);
+  my_driver.setup(&nh, "cmd_vel", &cmd_vel, &cmd_mot1, &cmd_mot2, &cmd_mot3, &cmd_mot4);
 
   attachInterrupt(my_driver.motor_1.my_motor.getIntNum(), isr_process_encoder1, RISING);
   attachInterrupt(my_driver.motor_2.my_motor.getIntNum(), isr_process_encoder2, RISING);
@@ -77,10 +86,10 @@ void setup() {
 
 void loop() {
   // Manage Timers to read the sensors data  
-  if (millis() >= my_camera.read_timer() + TIMER_CAMERA){
-    // logInfoStr = "IMU loop : " + String(millis() - my_imu->read_timer());
-    my_camera.loop();
-  }
+  // if (millis() >= my_camera.read_timer() + TIMER_CAMERA){
+  //   // logInfoStr = "IMU loop : " + String(millis() - my_imu->read_timer());
+  //   my_camera.loop();
+  // }
 
   if (millis() >= my_imu.read_timer() + TIMER_IMU){
     // logInfoStr = "IMU loop : " + String(millis() - my_imu->read_timer());

@@ -41,6 +41,7 @@ class Drive {
     void setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geometry_msgs::Twist>::CallbackT cb_cmd_vel);
     // Setup the robot to drive on motor 2 and 3 and allow the motor 1 and 4 to be commanded over ROS by PWM
     void setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geometry_msgs::Twist>::CallbackT cb_cmd_vel, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot1, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot4);
+    void setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geometry_msgs::Twist>::CallbackT cb_cmd_vel, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot1, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot2, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot3, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot4);
     void loop(void);
 };
 

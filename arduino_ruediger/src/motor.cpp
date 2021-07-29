@@ -6,16 +6,23 @@ Motor::Motor(uint8_t slot){
     my_motor.reset(slot);
 }
 
-void Motor::reset(uint8_t slot){
+void Motor::reset(uint8_t slot, uint8_t reversed){
     my_motor.reset(slot);
+    m_reversed = reversed;
 }
 
 void Motor::isr_process_encoder(void){
-  if(digitalRead(my_motor.getPortB()) == 0){
-    my_motor.pulsePosMinus();
-  } else {
-    my_motor.pulsePosPlus();
-  }
+//   if(digitalRead(my_motor.getPortB()) == 0){
+//     my_motor.pulsePosMinus();
+//   } else {
+//     my_motor.pulsePosPlus();
+//   }
+
+    if((digitalRead(my_motor.getPortB()) == 0 && !m_reversed) || (digitalRead(my_motor.getPortB()) != 0 && m_reversed)){
+        my_motor.pulsePosMinus();
+    } else {
+        my_motor.pulsePosPlus();
+    }
 }
 
 void Motor::configure_motor(int pulse, float ratio, float pos_p, float pos_i,float pos_d, float speed_p, float speed_i,float speed_d){
@@ -42,7 +49,12 @@ void Motor::motor_msg(const std_msgs::Int32 &msg){
 }
 
 void Motor::set_speed(int32_t speed){
-    my_motor.setTarPWM(speed);
+    if (!m_reversed){
+        my_motor.setTarPWM(speed);
+    } else {
+        my_motor.setTarPWM(-speed);
+    }
+    
 }
 
 void Motor::setup(ros::NodeHandle *nh, char publisher_name[]){

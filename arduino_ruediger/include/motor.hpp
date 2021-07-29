@@ -15,6 +15,7 @@ class Motor {
     ros::Subscriber<std_msgs::Int32> *motor_sub;
 
     int32_t my_speed;
+    uint8_t m_reversed;
 
   public:
     MeEncoderOnBoard my_motor;
@@ -26,7 +27,7 @@ class Motor {
 
     Motor(void);
     Motor(uint8_t slot);
-    void reset(uint8_t slot);
+    void reset(uint8_t slot, uint8_t reversed = 0);
     // Setup only publisher
     void setup(ros::NodeHandle *nh, char publisher_name[]);
     // Setup only subscriber
