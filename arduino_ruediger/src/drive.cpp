@@ -1,23 +1,5 @@
 #include "drive.hpp"
 
-void Drive::cmd_vel_cb(const geometry_msgs::Twist& my_speed){
-  int32_t speed_x;
-  int32_t speed_teta;
-
-  speed_x = my_speed.linear.x * 255;
-  speed_teta = my_speed.angular.z;
-
-  if (0 == speed_x && 0 != speed_teta){
-    speed_x = speed_teta * 255 / 2;
-    motor_2.set_speed(speed_x);
-    motor_3.set_speed(speed_x);
-  } else {
-    motor_2.set_speed(-speed_x + abs(speed_x) * speed_teta / 4);
-    motor_3.set_speed(speed_x + abs(speed_x) * speed_teta / 4);
-  }
-  
-}
-
 Drive::Drive(void){
     timer = 0;
     motor_1.reset(SLOT1);
@@ -39,10 +21,10 @@ void Drive::set_speed(const geometry_msgs::Twist& my_speed){
 
     if (0 == speed_x && 0 != speed_teta){
         speed_x = speed_teta * 255 / 2;
-        motor_2.set_speed(speed_x);
+        motor_2.set_speed(-speed_x);
         motor_3.set_speed(speed_x);
     } else {
-        motor_2.set_speed(-speed_x + abs(speed_x) * speed_teta / 4);
+        motor_2.set_speed(speed_x - abs(speed_x) * speed_teta / 4);
         motor_3.set_speed(speed_x + abs(speed_x) * speed_teta / 4);
     }
 }
@@ -120,7 +102,7 @@ void Drive::setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geome
 void Drive::setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geometry_msgs::Twist>::CallbackT cb_cmd_vel, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot1, ros::Subscriber<std_msgs::Int32>::CallbackT cb_cmd_mot4){
     setup(nh, sub_cmd_vel, cb_cmd_vel);
 
-    motor_1.setup(nh, "encoder_1", "cmd_mot1", cb_cmd_mot1);
+    motor_1.setup(nh, "encoder_1", "motor_speed_1", "cmd_mot1", cb_cmd_mot1);
     motor_1.configure_motor(
         8, 
         75, 
@@ -190,9 +172,13 @@ void Drive::setup(ros::NodeHandle *nh, char sub_cmd_vel[], ros::Subscriber<geome
     cmd_vel = new ros::Subscriber<geometry_msgs::Twist>(sub_cmd_vel, cb_cmd_vel);
     nh_->subscribe(*cmd_vel);
 
-    motor_1.setup(nh, "encoder_1", "cmd_mot1", cb_cmd_mot1);
-    motor_2.setup(nh, "encoder_2", "cmd_mot2", cb_cmd_mot2);
-    motor_3.setup(nh, "encoder_3", "cmd_mot3", cb_cmd_mot3);
+    // motor_1.setup(nh, "encoder_1", "cmd_mot1", cb_cmd_mot1);
+    // motor_2.setup(nh, "encoder_2", "cmd_mot2", cb_cmd_mot2);
+    // motor_3.setup(nh, "encoder_3", "cmd_mot3", cb_cmd_mot3);
+
+    motor_1.setup(nh, "encoder_1", "motor_speed_1", "cmd_mot1", cb_cmd_mot1);
+    motor_2.setup(nh, "encoder_2", "motor_speed_2", "cmd_mot2", cb_cmd_mot2);
+    motor_3.setup(nh, "encoder_3", "motor_speed_3", "cmd_mot3", cb_cmd_mot3);
     motor_4.setup(nh, "cmd_mot4", cb_cmd_mot4);
     
 }

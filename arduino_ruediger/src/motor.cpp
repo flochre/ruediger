@@ -60,9 +60,10 @@ void Motor::set_speed(int32_t speed){
 void Motor::setup(ros::NodeHandle *nh, char publisher_name[]){
     nh_ = nh;
 
-    motor_pub = new ros::Publisher(publisher_name, &encoder_info);
-    nh_->advertise(*motor_pub);
+    encoder_pub = new ros::Publisher(publisher_name, &encoder_info);
+    nh_->advertise(*encoder_pub);
 
+    motor_speed_pub = NULL;
     motor_sub = NULL;
 
     // Configure motor
@@ -84,7 +85,8 @@ void Motor::setup(ros::NodeHandle *nh, char publisher_name[]){
 void Motor::setup(ros::NodeHandle *nh, char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb){
     nh_ = nh;
 
-    motor_pub = NULL;
+    encoder_pub = NULL;
+    motor_speed_pub = NULL;
 
     motor_sub = new ros::Subscriber<std_msgs::Int32>(subscriber_name, cb);
     nh_->subscribe(*motor_sub);
@@ -104,8 +106,11 @@ void Motor::setup(ros::NodeHandle *nh, char subscriber_name[], ros::Subscriber<s
     );
 }
 
-void Motor::setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb){
-    setup(nh, publisher_name);
+void Motor::setup(ros::NodeHandle *nh, char publisher_encoder_name[], char publisher_motorspd_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb){
+    setup(nh, publisher_encoder_name);
+
+    motor_speed_pub = new ros::Publisher(publisher_motorspd_name, &motor_speed_info);
+    nh_->advertise(*motor_speed_pub);
 
     motor_sub = new ros::Subscriber<std_msgs::Int32>(subscriber_name, cb);
     nh_->subscribe(*motor_sub);
@@ -114,8 +119,12 @@ void Motor::setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_na
 void Motor::loop(void){
     my_motor.loop();
 
-    if (NULL != motor_pub) {
+    if (NULL != encoder_pub) {
         encoder_info.data = my_motor.getPulsePos();
-        motor_pub->publish(&encoder_info);
+        encoder_pub->publish(&encoder_info);
+    }
+    if (NULL != motor_speed_pub) {
+        motor_speed_info.data = my_motor.getCurrentSpeed();
+        motor_speed_pub->publish(&motor_speed_info);
     }
 }

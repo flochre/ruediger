@@ -5,13 +5,16 @@
 
 #include <ros.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/Float32.h>
 
 class Motor {
     ros::NodeHandle *nh_;
 
     std_msgs::Int32 encoder_info;
+    std_msgs::Float32 motor_speed_info;
 
-    ros::Publisher *motor_pub;
+    ros::Publisher *encoder_pub;
+    ros::Publisher *motor_speed_pub;
     ros::Subscriber<std_msgs::Int32> *motor_sub;
 
     int32_t my_speed;
@@ -33,7 +36,7 @@ class Motor {
     // Setup only subscriber
     void setup(ros::NodeHandle *nh, char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb);
     // Setup both
-    void setup(ros::NodeHandle *nh, char publisher_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb);
+    void setup(ros::NodeHandle *nh, char publisher_encoder_name[], char publisher_motorspd_name[], char subscriber_name[], ros::Subscriber<std_msgs::Int32>::CallbackT cb);
     void loop(void);
 };
 
