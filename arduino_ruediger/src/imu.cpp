@@ -286,11 +286,26 @@ void Imu::setup(ros::NodeHandle *nh, char topic_name[]){
   nh_ = nh;
 
   // Create publisher and advertise it!
-  imu_pub = new ros::Publisher(topic_name, &imu_msgs);          
-  nh_->advertise(*imu_pub);
+  if (0x0 == REDUCED_DATA){
 
-  // imu_msgs.header.frame_id = frame_id;
-  imu_msgs.header.frame_id = topic_name;
+    imu_pub = new ros::Publisher(topic_name, &imu_msgs);          
+    nh_->advertise(*imu_pub);
+
+    // imu_msgs.header.frame_id = frame_id;
+    imu_msgs.header.frame_id = topic_name;
+
+  }
+
+  if (0x1 == REDUCED_DATA){
+    imu_pub = new ros::Publisher(topic_name, &yaw_msgs);          
+    nh_->advertise(*imu_pub);
+  }
+  
+  if (0x2 == REDUCED_DATA){
+    imu_pub = new ros::Publisher(topic_name, &angles_msgs);          
+    nh_->advertise(*imu_pub);
+  }
+  
 
 
   // Init Gyroscope
@@ -301,39 +316,53 @@ void Imu::loop(void) {
   timer = millis();
 
   update();
-  imu_msgs.header.stamp = nh_->now();
 
-  get_quaternion(&imu_msgs.orientation);
+  if (0x0 == REDUCED_DATA){
+    imu_msgs.header.stamp = nh_->now();
 
-  get_gravity(gravity, &imu_msgs.orientation);
+    get_quaternion(&imu_msgs.orientation);
 
-  // double covariance_factor = TIMER_IMU * 0.001 * 0.2 * 0.01 * 250;
-  // double covariance = (covariance_factor * M_PI / 180) * (covariance_factor * M_PI / 180);
-  // imu_msgs.orientation_covariance[0] = covariance;
-  // imu_msgs.orientation_covariance[1] = covariance;
-  // imu_msgs.orientation_covariance[2] = covariance;
-  // imu_msgs.orientation_covariance[3] = covariance;
-  // imu_msgs.orientation_covariance[4] = covariance;
-  // imu_msgs.orientation_covariance[5] = covariance;
-  // imu_msgs.orientation_covariance[6] = covariance;
-  // imu_msgs.orientation_covariance[7] = covariance;
-  // imu_msgs.orientation_covariance[8] = covariance;
+    get_gravity(gravity, &imu_msgs.orientation);
 
-  // imu_msgs.angular_velocity.x = angle_roll_output * 180 / M_PI;
-  // imu_msgs.angular_velocity.y = angle_pitch_output * 180 / M_PI;
-  // imu_msgs.angular_velocity.z = angle_yaw_output * 180 / M_PI;
+    // double covariance_factor = TIMER_IMU * 0.001 * 0.2 * 0.01 * 250;
+    // double covariance = (covariance_factor * M_PI / 180) * (covariance_factor * M_PI / 180);
+    // imu_msgs.orientation_covariance[0] = covariance;
+    // imu_msgs.orientation_covariance[1] = covariance;
+    // imu_msgs.orientation_covariance[2] = covariance;
+    // imu_msgs.orientation_covariance[3] = covariance;
+    // imu_msgs.orientation_covariance[4] = covariance;
+    // imu_msgs.orientation_covariance[5] = covariance;
+    // imu_msgs.orientation_covariance[6] = covariance;
+    // imu_msgs.orientation_covariance[7] = covariance;
+    // imu_msgs.orientation_covariance[8] = covariance;
 
-  imu_msgs.angular_velocity.x = gyro_x;
-  imu_msgs.angular_velocity.y = gyro_y;
-  imu_msgs.angular_velocity.z = gyro_z;
+    // imu_msgs.angular_velocity.x = angle_roll_output * 180 / M_PI;
+    // imu_msgs.angular_velocity.y = angle_pitch_output * 180 / M_PI;
+    // imu_msgs.angular_velocity.z = angle_yaw_output * 180 / M_PI;
 
-  // imu_msgs.linear_acceleration.x = gravity[0];
-  // imu_msgs.linear_acceleration.y = gravity[1];
-  // imu_msgs.linear_acceleration.z = gravity[2];
+    imu_msgs.angular_velocity.x = gyro_x;
+    imu_msgs.angular_velocity.y = gyro_y;
+    imu_msgs.angular_velocity.z = gyro_z;
 
-  imu_msgs.linear_acceleration.x = acc_x;
-  imu_msgs.linear_acceleration.y = acc_y;
-  imu_msgs.linear_acceleration.z = acc_z;
+    // imu_msgs.linear_acceleration.x = gravity[0];
+    // imu_msgs.linear_acceleration.y = gravity[1];
+    // imu_msgs.linear_acceleration.z = gravity[2];
 
-  imu_pub->publish(&imu_msgs);
+    imu_msgs.linear_acceleration.x = acc_x;
+    imu_msgs.linear_acceleration.y = acc_y;
+    imu_msgs.linear_acceleration.z = acc_z;
+
+    imu_pub->publish(&imu_msgs);
+  }
+
+  if (0x1 == REDUCED_DATA){
+    yaw_msgs.data = angle_yaw_output;
+    imu_pub->publish(&yaw_msgs);
+  }
+  if (0x2 == REDUCED_DATA){
+    angles_msgs.x = angle_roll_output;
+    angles_msgs.y = angle_pitch_output;
+    angles_msgs.z = angle_yaw_output;
+    imu_pub->publish(&angles_msgs);
+  }
 }

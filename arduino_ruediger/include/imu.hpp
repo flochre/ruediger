@@ -8,12 +8,15 @@
 #include <ros.h>
 
 //These are the headers to access IMU-ROS message header, quaternion message header and TF broadcaster
+#include <std_msgs/Float64.h>
 #include <sensor_msgs/Imu.h>
+#include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Quaternion.h>
 #include <tf/transform_broadcaster.h>
 
-#define TIMER_IMU 52      // The MPU is geting data every 4ms a multiple of 4 is better
-#define DELETE_GRAVITY 0x0  // Use 1 to substract gravity use 
+#define TIMER_IMU 52        // The MPU is geting data every 4ms a multiple of 4 is better
+#define DELETE_GRAVITY 0x0  // Use 1 to substract gravity use
+#define REDUCED_DATA 0x2    // Use 0x0 to send full ros imu message use 0x1 to send only yaw 0x2 send all 3 angles only
 #define I2C_BUFFER_SIZE 14
 
 #include "MeConfig.h"
@@ -37,6 +40,8 @@ class Imu : public MePort
     ros::NodeHandle *nh_;
     ros::Publisher *imu_pub;
 
+    std_msgs::Float64 yaw_msgs;
+    geometry_msgs::Vector3 angles_msgs;
     sensor_msgs::Imu imu_msgs;
 
     double  aSensitivity, aSensitivity_si; /* for 2g, check data sheet AFS_SEL = 0 Register 28 (0x1c) */
