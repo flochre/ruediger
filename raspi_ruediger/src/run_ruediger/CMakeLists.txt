@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  nav_msgs
   tf2
   tf2_ros
 )
@@ -141,7 +142,7 @@ include_directories(
 add_executable(imu_tf2_listener src/imu_tf2_listener.cpp)
 add_executable(base_link_tf2_broadcaster src/base_link_tf2_broadcaster.cpp)
 
-add_executable(tf2_manager src/tf2_manager.cpp src/${PROJECT_NAME}/tf2_broadcaster.cpp)
+add_executable(tf2_manager src/tf2_manager.cpp src/${PROJECT_NAME}/imu_tf2_broadcaster.cpp src/${PROJECT_NAME}/odom_tf2_broadcaster.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

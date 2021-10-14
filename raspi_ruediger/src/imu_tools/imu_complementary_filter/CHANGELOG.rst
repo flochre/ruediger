@@ -2,22 +2,32 @@
 Changelog for package imu_complementary_filter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1.8 (2020-05-25)
+1.2.3 (2021-04-09)
+------------------
+* Fix "non standard content" warning in imu_tools metapackage
+  Fixes `#135 <https://github.com/ccny-ros-pkg/imu_tools/issues/135>`_.
+* Set cmake_policy CMP0048 to fix warning
+* Contributors: Martin Günther
+
+1.2.2 (2020-05-25)
 ------------------
 * fix install path & boost linkage issues
-* Contributors: Sean Yen
+* Contributors: Martin Günther, Sean Yen
 
-1.1.7 (2019-05-06)
+1.2.1 (2019-05-06)
 ------------------
 * Remove junk xml (`#93 <https://github.com/ccny-ros-pkg/imu_tools/issues/93>`_)
 * Fix C++14 builds (`#89 <https://github.com/ccny-ros-pkg/imu_tools/issues/89>`_)
 * Contributors: David V. Lu!!, Paul Bovbel
 
-1.1.6 (2018-05-25)
+1.2.0 (2018-05-25)
 ------------------
 * Add std dev parameter to orientation estimate from filter (`#85 <https://github.com/ccny-ros-pkg/imu_tools/issues/85>`_)
   Similar to `#41 <https://github.com/ccny-ros-pkg/imu_tools/issues/41>`_, but not using dynamic_reconfigure as not implemented for complementary filter
 * Contributors: Stefan Kohlbrecher
+
+1.1.5 (2017-05-24)
+------------------
 
 1.1.4 (2017-05-22)
 ------------------
