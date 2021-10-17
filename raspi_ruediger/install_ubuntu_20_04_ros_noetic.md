@@ -115,3 +115,34 @@ it could be that not everything compiles but it is ok the roslaunch should still
 cd ~/ruediger_repo/raspi_ruediger
 . devel/setup.bash
 roslaunch run_ruediger first_launch.launch
+
+## Use the Robot as WiFi Access Point 
+
+https://raspberrypi.stackexchange.com/questions/109425/ubuntu-server-18-wifi-hotspot-setup
+
+```
+sudo apt update
+sudo apt install network-manager
+
+sudo bash -c "echo 'network: {config: disabled}' > /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg"
+
+sudo nano /etc/netplan/10-my-config.yaml
+sudo nano /etc/netplan/10-ruediger.yaml
+```
+```
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    eth0:
+      dhcp4: true
+      optional: true
+  wifis:
+    wlan0:
+      dhcp4: true
+      optional: true
+      access-points:
+        "My-Robot":
+          password: "yourPassword"
+          mode: ap
+```

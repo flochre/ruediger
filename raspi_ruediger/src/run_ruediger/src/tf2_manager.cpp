@@ -17,7 +17,7 @@ int main(int argc, char** argv){
     // tf2_odom.setup(&nh, "/serial/encoder_2", "/serial/encoder_3", "odom", "world");
     tf2_odom.setup(&nh, "/serial/encoder_2", "/serial/encoder_3", "world", "odom");
     tf2_odom.set_init_rotation(0.0, 0.0, -1.57);
-    tf2_odom.set_translation(1.30, 0.75, 0);
+    tf2_odom.set_init_translation(1.30, 0.75);
 
     ros::Rate rate(12.0);
     while (nh.ok()){
