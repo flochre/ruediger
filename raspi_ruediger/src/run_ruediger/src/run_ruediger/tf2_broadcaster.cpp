@@ -5,10 +5,6 @@ Tf2_broadcaster::Tf2_broadcaster(void){
 
 Tf2_broadcaster::~Tf2_broadcaster(void){}
 
-void Tf2_broadcaster::set_init_rotation(double roll, double pitch, double yaw){
-  robot_init_orientation.setRPY(roll, pitch, yaw);
-}
-
 void Tf2_broadcaster::set_rotation(double roll, double pitch, double yaw){
   tf2::Quaternion q;
   q.setRPY(roll, pitch, yaw);

@@ -21,7 +21,6 @@ class Tf2_broadcaster {
     Tf2_broadcaster(void);
     ~Tf2_broadcaster(void);
 
-    void set_init_rotation(double roll, double pitch, double yaw);
     void set_rotation(double roll, double pitch, double yaw);
     void set_rotation(tf2::Quaternion q);
     void set_rotation(geometry_msgs::Quaternion q);
