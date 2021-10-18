@@ -48,6 +48,9 @@ class Odom_tf2_broadcaster: public Tf2_broadcaster {
     void set_init_rotation(double roll, double pitch, double yaw);
     void set_init_translation(double x, double y);
 
+    void set_ticks_left(int current_ticks);
+    void set_ticks_right(int current_ticks);
+
     void loop(void);
 
 };

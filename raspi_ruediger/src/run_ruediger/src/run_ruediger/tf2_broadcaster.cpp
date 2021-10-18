@@ -6,15 +6,13 @@ Tf2_broadcaster::Tf2_broadcaster(void){
 Tf2_broadcaster::~Tf2_broadcaster(void){}
 
 void Tf2_broadcaster::set_rotation(double roll, double pitch, double yaw){
+  double init_roll, init_pitch, init_yaw;
+  tf2::Matrix3x3(robot_init_orientation).getRPY(init_roll, init_pitch, init_yaw);
+  
   tf2::Quaternion q;
-  q.setRPY(roll, pitch, yaw);
+  q.setRPY(init_roll + roll, init_pitch + pitch, init_yaw + yaw);
 
-  q *= robot_init_orientation; 
-  q.normalize();
-  tf_stamped.transform.rotation.x = q.x();
-  tf_stamped.transform.rotation.y = q.y();
-  tf_stamped.transform.rotation.z = q.z();
-  tf_stamped.transform.rotation.w = q.w();
+  tf2::convert(q, tf_stamped.transform.rotation);
 }
 
 void Tf2_broadcaster::set_rotation(tf2::Quaternion q){

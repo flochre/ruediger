@@ -45,7 +45,7 @@ void Odom_tf2_broadcaster::encoder_right_callback(const std_msgs::Int32::ConstPt
 }
 
 Odom_tf2_broadcaster::Odom_tf2_broadcaster(void) : Tf2_broadcaster(){
-
+  // robot_init_orientation.setRPY(0, 0, 0);
   x = 0.0;
   y = 0.0;
   th = 0.0;
@@ -95,6 +95,14 @@ void Odom_tf2_broadcaster::set_init_translation(double x, double y){
   this->y = y;
 }
 
+void Odom_tf2_broadcaster::set_ticks_left(int current_ticks){
+  current_ticks_left = last_ticks_left = current_ticks;
+}
+
+void Odom_tf2_broadcaster::set_ticks_right(int current_ticks){
+  current_ticks_right = last_ticks_right = current_ticks;
+}
+
 void Odom_tf2_broadcaster::loop(){
     current_time = ros::Time::now();
 
@@ -124,7 +132,6 @@ void Odom_tf2_broadcaster::loop(){
     if (0 != delta_yaw){
       th += delta_yaw;
     }
-
 
     //since all odometry is 6DOF we'll need a quaternion created from yaw
     geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);
