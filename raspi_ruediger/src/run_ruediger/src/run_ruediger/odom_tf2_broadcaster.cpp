@@ -18,8 +18,11 @@ void Odom_tf2_broadcaster::encoder_left_callback(const std_msgs::Int32::ConstPtr
 
   if (dt > 0){
     v_left = d_left / dt;
+    if (abs(v_left) > 0.6) {
+      v_left = (v_left/abs(v_left) * 0.6);
+    }
   } else {
-    vx = 0;
+    v_left = 0;
   }
 
   last_time_left = current_time_left;
@@ -37,8 +40,11 @@ void Odom_tf2_broadcaster::encoder_right_callback(const std_msgs::Int32::ConstPt
 
   if (dt > 0){
     v_right =  d_right / dt;
+    if (abs(v_right) > 0.6) {
+      v_right = (v_right/abs(v_right) * 0.6);
+    }
   } else {
-    vy = 0;
+    v_right = 0;
   }
 
   last_time_right = current_time_right;
