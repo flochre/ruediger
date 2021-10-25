@@ -5,7 +5,8 @@ services:
 
 env:
   matrix:
-    - CI_ROS_DISTRO="kinetic"
+    - CI_ROS_DISTRO="melodic"
+    - CI_ROS_DISTRO="noetic"
 
 install:
   - docker build -t imu_tools_$CI_ROS_DISTRO -f Dockerfile-$CI_ROS_DISTRO .

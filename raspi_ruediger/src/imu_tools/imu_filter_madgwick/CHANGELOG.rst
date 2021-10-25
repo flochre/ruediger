@@ -2,27 +2,43 @@
 Changelog for package imu_filter_madgwick
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1.8 (2020-05-25)
+1.2.3 (2021-04-09)
+------------------
+* Fix "non standard content" warning in imu_tools metapackage
+  Fixes `#135 <https://github.com/ccny-ros-pkg/imu_tools/issues/135>`_.
+* Add example launch file for imu_filter_madgwick (`#132 <https://github.com/ccny-ros-pkg/imu_tools/issues/132>`_)
+* Update maintainers in package.xml
+* Fix warnings: reordering and unused vars
+* Set cmake_policy CMP0048 to fix warning
+* Contributors: Martin Günther, pietrocolombo
+
+1.2.2 (2020-05-25)
 ------------------
 * Drop the signals component of Boost (`#103 <https://github.com/ccny-ros-pkg/imu_tools/issues/103>`_)
-  Unused and is removed in Boost 1.71 (Ubuntu Focal). Signals2 is header-only.
 * Add the option to remove the gravity vector (`#101 <https://github.com/ccny-ros-pkg/imu_tools/issues/101>`_)
-* Rewrite rosbags: Use MagneticField for magnetometer
 * fix install path & boost linkage issues
 * Contributors: Alexis Paques, Martin Günther, Mike Purvis, Sean Yen
 
-1.1.7 (2019-05-06)
+1.2.1 (2019-05-06)
 ------------------
 * Skip messages and warn if computeOrientation fails
 * Contributors: Martin Günther
 
-1.1.6 (2018-05-25)
+1.2.0 (2018-05-25)
 ------------------
 * Remove outdated Makefile
-* update to use non deprecated pluginlib macro (`#77 <https://github.com/ccny-ros-pkg/imu_tools/issues/77>`_)
 * Add warning when IMU time stamp is zero
   Closes `#82 <https://github.com/ccny-ros-pkg/imu_tools/issues/82>`_.
+* update to use non deprecated pluginlib macro (`#77 <https://github.com/ccny-ros-pkg/imu_tools/issues/77>`_)
 * Contributors: Martin Günther, Mikael Arguedas
+
+1.1.5 (2017-05-24)
+------------------
+* Initial release into Lunar
+* Remove support for Vector3 mag messages
+* Change default world_frame = enu
+* Rewrite rosbags: Use MagneticField for magnetometer
+* Contributors: Martin Günther
 
 1.1.4 (2017-05-22)
 ------------------

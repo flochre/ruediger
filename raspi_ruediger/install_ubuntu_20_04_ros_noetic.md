@@ -1,64 +1,148 @@
-Install the last ubuntu server from : https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi#1-overview
+## Burn the image on SD Card
+https://beebom.com/how-clone-raspberry-pi-sd-card-windows-linux-macos/
 
+I would strongly recommend installing from the last ubuntu image without CLI armhf (32bits)
+
+https://ubuntu.com/download/raspberry-pi
+https://ubuntu.com/download/raspberry-pi/thank-you?version=20.04.3&architecture=server-armhf+raspi 
+
+Change the boot/config.txt (you can do it directly on the sd card) or use the one in the repo :)
+under [pi3] add :
+    dtoverlay=pi3-miniuart-bt
+under [all] add :
+    dtparam=i2c_arm=on
+    dtparam=spi=on
+
+    start_x=1
+    gpu_mem=256
+
+    core_freq=250
+    enable_uart=1
+    dtoverlay=disable-bt
+
+## First Boot of the Ubuntu
+
+### find hostnames and IP on your network
+```
+arp -a
+arp -na | grep -i "b8:27:eb"
+arp -na | grep -i "dc:a6:32"
+```
+
+### ssh is automaticly activated
+```
+ssh ubuntu@192.168.1.21 
+pw ubuntu
+```
+
+### change user and password on first start here is an idea
+```
+User: my_robot
+pw:   pw!my_robot33
+```
+
+## Perform a apt update and upgrade
+```
 sudo apt update
-sudo apt upgrade
+sudo apt upgrade -y
+sudo reboot
+```
 
-follow the guide to install ROS :
-
+## Install ROS Noetic
 http://wiki.ros.org/noetic/Installation/Ubuntu
 
-sudo apt-get install python3-pip
-sudo apt-get install python3-osrf-pycommon python3-catkin-tools
+```
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+```
 
-sudo apt install ros-noetic-rosserial
-sudo apt install ros-noetic-rosserial-arduino
-sudo apt install ros-noetic-tf
-sudo apt install ros-noetic-angles
-sudo apt-get install libusb-1.0-0-dev
+```
+sudo apt install curl
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+```
+```
+sudo apt update
 
-mkdir 40_Git
-cd 40_Git
-git clone git@github.com:flochre/ruediger.git
-cd ruediger/raspi_ruediger
-catkin build -cs
+sudo apt install ros-noetic-ros-base -y
+sudo apt install ros-$ROS_DISTRO-rosserial-python -y
+sudo apt install ros-$ROS_DISTRO-cv-bridge ros-$ROS_DISTRO-image-transport -y
+sudo apt install ros-$ROS_DISTRO-angles ros-$ROS_DISTRO-tf2-tools ros-$ROS_DISTRO-tf ros-$ROS_DISTRO-tf2 ros-$ROS_DISTRO-tf2-geometry-msgs -y
 
-Check the ubuntu version : 
-hostnamectl
+echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+source ~/.bashrc
 
-Get serial to work
-source : https://raspberrypi.stackexchange.com/questions/114366/rpi4-serial-port-not-working-on-either-raspberry-os-or-ubuntu
+sudo apt install python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools python3-osrf-pycommon -y
+sudo apt install libusb-1.0-0-dev -y
 
-remove console=serial0,115200 from file /boot/firmware/cmdline.txt
-disable the serial console: sudo systemctl stop serial-getty@ttyS0.service && sudo systemctl disable serial-getty@ttyS0.service
+sudo rosdep init
+rosdep update
+```
 
-create the following udev /lib/udev/rules.d/61-serial-rpi.rules
+## Set the Serial Ports
+https://askubuntu.com/a/1325939
 
+Disable serial-getty@ttyS0.service
+sudo systemctl stop serial-getty@ttyS0.service
+sudo systemctl disable serial-getty@ttyS0.service
+sudo systemctl mask serial-getty@ttyS0.service
+
+Setup udev rules
+sudo nano /etc/udev/rules.d/10-local.rules
 KERNEL=="ttyS0", SYMLINK+="serial0" GROUP="tty" MODE="0660"
 KERNEL=="ttyAMA0", SYMLINK+="serial1" GROUP="tty" MODE="0660"
 
 sudo udevadm control --reload-rules && sudo udevadm trigger
 
-change the group of the new serial devices
-sudo chgrp -h tty /dev/serial0
-sudo chgrp -h tty /dev/serial1
-The devices are now under the tty group. Need to add the user to the tty group and dialout group:
-sudo adduser $USER tty
-sudo adduser $USER dialout
-update the permissions for group read on the devices
-sudo chmod g+r /dev/ttyS0
-sudo chmod g+r /dev/ttyAMA0
+sudo adduser ubuntu tty
+Delete substring console=serial0,115200 from /boot/firmware/cmdline.txt
 
-reboot : sudo shutdown -r now
+Add newline dtoverlay=disable-bt to /boot/firmware/config.txt (I put it right under the cmdline=cmdline.txt line)
 
-after this you pi will be stuck in U-Boot
-there you can just type 'boot' to boot..
+sudo reboot
 
-but that it is starting in the future you should connect a keyboard and a screen to the RPi and type
-source : https://askubuntu.com/questions/1215848/how-to-disable-ttyama0-console-on-boot-raspberry-pi
+## Change hostname
+hostnamectl set-hostname ruediger
 
-U-Boot> setenv bootdelay -2
-U-Boot> saveenv
+## Get Github Repo
+```
+git clone git@github.com:flochre/ruediger.git ~/ruediger_repo
+cd ~/ruediger_repo/raspi_ruediger/
+catkin build -cs -j2
+```
 
-now use the new launch file to start
+it could be that not everything compiles but it is ok the roslaunch should still work
 
-roslaunch run_ruediger launch_noetic.launch 
+## Start Ruediger
+cd ~/ruediger_repo/raspi_ruediger
+. devel/setup.bash
+roslaunch run_ruediger first_launch.launch
+
+## Use the Robot as WiFi Access Point 
+
+https://raspberrypi.stackexchange.com/questions/109425/ubuntu-server-18-wifi-hotspot-setup
+
+```
+sudo apt update
+sudo apt install network-manager
+
+sudo bash -c "echo 'network: {config: disabled}' > /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg"
+
+sudo nano /etc/netplan/10-my-config.yaml
+sudo nano /etc/netplan/10-ruediger.yaml
+```
+```
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    eth0:
+      dhcp4: true
+      optional: true
+  wifis:
+    wlan0:
+      dhcp4: true
+      optional: true
+      access-points:
+        "My-Robot":
+          password: "yourPassword"
+          mode: ap
+```
