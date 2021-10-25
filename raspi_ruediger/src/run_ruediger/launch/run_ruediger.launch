@@ -15,6 +15,23 @@
 		pkg		=	"run_ruediger" 
 		type	=	"tf2_manager" 
 		name	=	"tf2_manager" 
-	/>
+	>
+		<param name="imu_topic" value="/serial/imu_data"/>
+		<param name="imu_frame_id" value="/world"/>
+		<param name="imu_child_frame_id" value="/imu_data"/>
+
+		<param name="odom_mot_left_topic" value="/serial/encoder_2"/>
+		<param name="odom_mot_right_topic" value="/serial/encoder_3"/>
+		<param name="odom_frame_id" value="/world"/>
+		<param name="odom_child_frame_id" value="/odom"/>
+
+		<param name="init_x" value="1.30" />
+		<param name="init_y" value="0.75" />
+		<param name="init_z" value="0.0" />
+		<param name="init_roll" value="0.0" />
+		<param name="init_pitch" value="0.0" />
+		<param name="init_yaw" value="-1.570796327" />
+		<!-- <param name="init_yaw" value="-M_PI/2" /> -->
+	</node>
 
 </launch>
