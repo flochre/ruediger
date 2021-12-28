@@ -326,15 +326,39 @@ void Imu::loop(void) {
 
     // double covariance_factor = TIMER_IMU * 0.001 * 0.2 * 0.01 * 250;
     // double covariance = (covariance_factor * M_PI / 180) * (covariance_factor * M_PI / 180);
-    // imu_msgs.orientation_covariance[0] = covariance;
-    // imu_msgs.orientation_covariance[1] = covariance;
-    // imu_msgs.orientation_covariance[2] = covariance;
-    // imu_msgs.orientation_covariance[3] = covariance;
-    // imu_msgs.orientation_covariance[4] = covariance;
-    // imu_msgs.orientation_covariance[5] = covariance;
-    // imu_msgs.orientation_covariance[6] = covariance;
-    // imu_msgs.orientation_covariance[7] = covariance;
-    // imu_msgs.orientation_covariance[8] = covariance;
+                                        // 0.001
+    double diagonale_orientation_covariance = 0.0012;
+    imu_msgs.orientation_covariance[0] = diagonale_orientation_covariance;
+    imu_msgs.orientation_covariance[1] = 0;
+    imu_msgs.orientation_covariance[2] = 0;
+    imu_msgs.orientation_covariance[3] = 0;
+    imu_msgs.orientation_covariance[4] = diagonale_orientation_covariance;
+    imu_msgs.orientation_covariance[5] = 0;
+    imu_msgs.orientation_covariance[6] = 0;
+    imu_msgs.orientation_covariance[7] = 0;
+    imu_msgs.orientation_covariance[8] = diagonale_orientation_covariance;
+                                              // 0.1
+    double diagonale_angular_velocity_covariance = 0.004;
+    imu_msgs.angular_velocity_covariance[0] = diagonale_angular_velocity_covariance;
+    imu_msgs.angular_velocity_covariance[1] = 0;
+    imu_msgs.angular_velocity_covariance[2] = 0;
+    imu_msgs.angular_velocity_covariance[3] = 0;
+    imu_msgs.angular_velocity_covariance[4] = diagonale_angular_velocity_covariance;
+    imu_msgs.angular_velocity_covariance[5] = 0;
+    imu_msgs.angular_velocity_covariance[6] = 0;
+    imu_msgs.angular_velocity_covariance[7] = 0;
+    imu_msgs.angular_velocity_covariance[8] = diagonale_angular_velocity_covariance;
+                                                // 0.5
+    double diagonale_linear_acceleration_covariance = 0.5;
+    imu_msgs.linear_acceleration_covariance[0] = diagonale_linear_acceleration_covariance;
+    imu_msgs.linear_acceleration_covariance[1] = 0;
+    imu_msgs.linear_acceleration_covariance[2] = 0;
+    imu_msgs.linear_acceleration_covariance[3] = 0;
+    imu_msgs.linear_acceleration_covariance[4] = diagonale_linear_acceleration_covariance;
+    imu_msgs.linear_acceleration_covariance[5] = 0;
+    imu_msgs.linear_acceleration_covariance[6] = 0;
+    imu_msgs.linear_acceleration_covariance[7] = 0;
+    imu_msgs.linear_acceleration_covariance[8] = diagonale_linear_acceleration_covariance;
 
     // imu_msgs.angular_velocity.x = angle_roll_output * 180 / M_PI;
     // imu_msgs.angular_velocity.y = angle_pitch_output * 180 / M_PI;
