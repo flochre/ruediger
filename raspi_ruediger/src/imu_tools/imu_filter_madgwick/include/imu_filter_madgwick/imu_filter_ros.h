@@ -34,6 +34,7 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <dynamic_reconfigure/server.h>
+#include <tf2/LinearMath/Quaternion.h>
 
 #include "imu_filter_madgwick/imu_filter.h"
 #include "imu_filter_madgwick/ImuFilterMadgwickConfig.h"
@@ -42,13 +43,11 @@ class ImuFilterRos
 {
   typedef sensor_msgs::Imu              ImuMsg;
   typedef sensor_msgs::MagneticField    MagMsg;
-  typedef geometry_msgs::Vector3Stamped MagVectorMsg;
 
   typedef message_filters::sync_policies::ApproximateTime<ImuMsg, MagMsg> SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
   typedef message_filters::Subscriber<ImuMsg> ImuSubscriber;
   typedef message_filters::Subscriber<MagMsg> MagSubscriber;
-  typedef message_filters::Subscriber<MagVectorMsg> MagVectorSubscriber;
 
   typedef imu_filter_madgwick::ImuFilterMadgwickConfig   FilterConfig;
   typedef dynamic_reconfigure::Server<FilterConfig>   FilterConfigServer;
@@ -64,14 +63,12 @@ class ImuFilterRos
 
     ros::NodeHandle nh_;
     ros::NodeHandle nh_private_;
+    double yaw_offset_total_;
 
     boost::shared_ptr<ImuSubscriber> imu_subscriber_;
     boost::shared_ptr<MagSubscriber> mag_subscriber_;
     boost::shared_ptr<Synchronizer> sync_;
-
-    // Adapter to support the use_magnetic_field_msg param.
-    boost::shared_ptr<MagVectorSubscriber> vector_mag_subscriber_;
-    ros::Publisher mag_republisher_;
+    tf2::Quaternion yaw_offsets_;
 
     ros::Publisher rpy_filtered_debug_publisher_;
     ros::Publisher rpy_raw_debug_publisher_;
@@ -84,7 +81,6 @@ class ImuFilterRos
     // **** paramaters
     WorldFrame::WorldFrame world_frame_;
     bool use_mag_;
-    bool use_magnetic_field_msg_;
     bool stateless_;
     bool publish_tf_;
     bool reverse_tf_;
@@ -110,8 +106,6 @@ class ImuFilterRos
 
     void imuCallback(const ImuMsg::ConstPtr& imu_msg_raw);
 
-    void imuMagVectorCallback(const MagVectorMsg::ConstPtr& mag_vector_msg);
-
     void publishFilteredMsg(const ImuMsg::ConstPtr& imu_msg_raw);
     void publishTransform(const ImuMsg::ConstPtr& imu_msg_raw);
 
@@ -120,6 +114,8 @@ class ImuFilterRos
 
     void reconfigCallback(FilterConfig& config, uint32_t level);
     void checkTopicsTimerCallback(const ros::TimerEvent&);
+
+    void applyYawOffset(double& q0, double& q1, double& q2, double& q3);
 };
 
 #endif // IMU_FILTER_IMU_MADWICK_FILTER_ROS_H
